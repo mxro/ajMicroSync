@@ -4,11 +4,13 @@
  */
 package aj.apps.filesync.internal;
 
+import java.awt.Component;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import one.client.jre.OneJre;
 import one.core.domain.OneClient;
 import one.core.dsl.CoreDsl;
+import one.core.dsl.callbacks.WhenShutdown;
 import one.core.dsl.callbacks.WhenUserLoggedIn;
 import one.core.dsl.callbacks.results.WithChallengedContext;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
@@ -19,15 +21,17 @@ import one.core.dsl.grammars.LoginWithUserDetailsParameters;
  * @author mroh004
  */
 public class AjLogin extends javax.swing.JPanel {
+    private final WhenLoggedIn callback;
 
     public interface WhenLoggedIn {
-     public void thenDo(WithUserRegisteredResult wurr);
+     public void thenDo(Component loginForm, WithUserRegisteredResult wurr);
 }
     
     /**
      * Creates new form AjLogin
      */
-    public AjLogin() {
+    public AjLogin(WhenLoggedIn callback) {
+        this.callback = callback;
         initComponents();
     }
 
@@ -121,60 +125,7 @@ public class AjLogin extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        
-        final CoreDsl dsl = OneJre.init();
-        
-        final OneClient c = dsl.createClient();
-        
-        dsl.loginUser(new LoginWithUserDetailsParameters() {
-
-            public String getEmail() {
-                return emailField.getText();
-            }
-
-            public String getPassword() {
-                return String.valueOf(passwordFiled.getPassword());
-            }
-
-            public String getApplicationNodeUri() {
-                return "https://u1.linnk.it/0fs7dr/Apps1/appjangle";
-                
-            }
-
-            public String getApplicationNodeSecret() {
-                return "";
-            }
-
-            public OneClient getClient() {
-                return c;
-            }
-
-            public WhenUserLoggedIn getCallback() {
-                return new WhenUserLoggedIn() {
-
-                    public void thenDo(WithUserRegisteredResult wurr) {
-                        
-                    }
-
-                    public void onChallenge(WithChallengedContext wcc) {
-                        JOptionPane.showMessageDialog(null, "Unexpected challenge.");
-                    }
-
-                    public void onInvalidDetails() {
-                        JOptionPane.showMessageDialog(null, "Invalid username and/or password details.");
-                    }
-
-                    public void onNotRegisteredForApplication() {
-                        JOptionPane.showMessageDialog(null, "User not registered for appjangle.");
-                    }
-
-                    public void onFailure(Throwable thrwbl) {
-                        JOptionPane.showMessageDialog(null, "Unexpected error: "+thrwbl);
-                    }
-                };
-            }
-        });
-        
+        // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
