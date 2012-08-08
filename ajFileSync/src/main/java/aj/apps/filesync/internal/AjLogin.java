@@ -4,7 +4,10 @@
  */
 package aj.apps.filesync.internal;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import one.client.jre.OneJre;
@@ -21,12 +24,14 @@ import one.core.dsl.grammars.LoginWithUserDetailsParameters;
  * @author mroh004
  */
 public class AjLogin extends javax.swing.JPanel {
+
     private final WhenLoggedIn callback;
 
     public interface WhenLoggedIn {
-     public void thenDo(Component loginForm, WithUserRegisteredResult wurr);
-}
-    
+
+        public void thenDo(Component loginForm, WithUserRegisteredResult wurr);
+    }
+
     /**
      * Creates new form AjLogin
      */
@@ -44,26 +49,22 @@ public class AjLogin extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        detailsPanel = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         emailField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         passwordFiled = new javax.swing.JPasswordField();
-        jLabel3 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        loginButton = new javax.swing.JButton();
+
+        setLayout(new java.awt.BorderLayout());
+
+        jLabel3.setText("<html>You will need an appjangle account to use appjangle File Sync. <br/>If you do not have one yet, you can get a free account at <a href=\"http://appjangle.com/\">appjangle.com</a>!</html>");
 
         jLabel1.setText("E-Mail:");
 
         jLabel2.setText("Password:");
-
-        jLabel3.setText("<html>You will need an appjangle account to use appjangle File Sync. <br/>If you do not have one yet, you can get a free account at <a href=\"http://appjangle.com/\">appjangle.com</a>!</html>");
-
-        jButton1.setText("Login");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
 
         jButton2.setText("Close");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -72,50 +73,59 @@ public class AjLogin extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        loginButton.setText("Login");
+        loginButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loginButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout detailsPanelLayout = new javax.swing.GroupLayout(detailsPanel);
+        detailsPanel.setLayout(detailsPanelLayout);
+        detailsPanelLayout.setHorizontalGroup(
+            detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(detailsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(detailsPanelLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(29, 29, 29)
                         .addComponent(emailField))
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(detailsPanelLayout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 14, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(detailsPanelLayout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(passwordFiled))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jButton2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)))
+                        .addComponent(loginButton)))
                 .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        detailsPanelLayout.setVerticalGroup(
+            detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(detailsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(passwordFiled, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(loginButton)
                     .addComponent(jButton2))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        add(detailsPanel, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -124,17 +134,91 @@ public class AjLogin extends javax.swing.JPanel {
         System.exit(0);
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void showDetailsPanel() {
+        this.add(this.detailsPanel, BorderLayout.CENTER);
+       this.detailsPanel.setVisible(true);
+        this.validate();;
+        this.revalidate();;
+                
+    }
+    
+    private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
 
+        this.remove(this.detailsPanel);
+
+        LogginInPanel lp = new LogginInPanel();
+        this.add(lp, BorderLayout.CENTER);
+        lp.setVisible(true);
+
+        lp.validate();
+        lp.revalidate();
+
+        this.validate();;
+        this.revalidate();
+
+        
+        CoreDsl dsl = OneJre.init();
+        
+        OneClient c = dsl.createClient();
+        
+        dsl.loginUser(new LoginWithUserDetailsParameters() {
+
+            public String getEmail() {
+                return emailField.getText();
+            }
+
+            public String getPassword() {
+                return String.valueOf(passwordFiled.getPassword());
+            }
+
+            public String getApplicationNodeUri() {
+                return "https://u1.linnk.it/0fs7dr/Apps1/appjangle";
+            }
+
+            public String getApplicationNodeSecret() {
+                return "";
+            }
+
+            public OneClient getClient() {
+               return c;
+            }
+
+            public WhenUserLoggedIn getCallback() {
+               return new WhenUserLoggedIn() {
+
+                    public void thenDo(WithUserRegisteredResult wurr) {
+                       
+                    }
+
+                    public void onChallenge(WithChallengedContext wcc) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    public void onInvalidDetails() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    public void onNotRegisteredForApplication() {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+
+                    public void onFailure(Throwable thrwbl) {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+                }
+            }
+        });
+
+
+    }//GEN-LAST:event_loginButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel detailsPanel;
     private javax.swing.JTextField emailField;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JButton loginButton;
     private javax.swing.JPasswordField passwordFiled;
     // End of variables declaration//GEN-END:variables
 }
