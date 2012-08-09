@@ -28,6 +28,6 @@ public interface DataService {
         public void onFailure(Throwable t);
     }
     
-    public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback);
+    public void uploadChanges(String value, String nodeUri, WhenChangesUploaded callback);
     
 }

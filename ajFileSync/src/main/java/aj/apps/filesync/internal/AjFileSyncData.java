@@ -4,8 +4,6 @@
  */
 package aj.apps.filesync.internal;
 
-import aj.apps.filesync.internal.DataService;
-import aj.apps.filesync.internal.DataService;
 import one.core.domain.OneClient;
 import one.core.dsl.CoreDsl;
 import one.core.dsl.callbacks.WhenLoaded;
@@ -29,7 +27,65 @@ public class AjFileSyncData implements DataService {
         this.loginDetails = loginDetails;
     }
 
-    public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
+    public void uploadChanges(final String newValue, String nodeUri, final WhenChangesUploaded callback) {
+        
+        final CoreDsl dsl = client.one();
+        
+        dsl.load(nodeUri).in(client).and(new WhenLoaded() {
+
+            @Override
+            public void thenDo(WithLoadResult<Object> wlr) {
+                
+                Object resolvedNode = dsl.dereference(wlr.loadedNode()).in(client);
+                
+                if (!(resolvedNode instanceof OneValue<?>)) {
+                    callback.onFailure(new Exception("Node was not of type OneValue: "+wlr.loadedNode()));
+                    return;
+                }
+                
+                OneValue<?> valueNode = (OneValue<?>) resolvedNode;
+                
+                if (!(valueNode.getValue() instanceof String)) {
+                    callback.onFailure(new Exception("Value nodes value was not of type String: "+valueNode));
+                    return;
+                }
+                
+                String oldValue = (String) valueNode.getValue();
+                
+                if (oldValue.equals(newValue)) {
+                    callback.thenDo();
+                    return;
+                }
+                
+                OneValue<String> newValueNode = dsl.newNode(newValue).at(valueNode.getId());
+                
+                dsl.replaceSafe(valueNode).with(newValueNode).in(client).and(new WhenResponseFromServerReceived<OneValue<String>>() {
+
+                    @Override
+                    public void thenDo(WithOperationResult<OneValue<String>> wor) {
+                        callback.thenDo();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        callback.onFailure(t);
+                    }
+                    
+                    
+                });
+                
+                
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                callback.onFailure(t);
+            }
+            
+            
+        });
+        
+        
     }
 
     @Override

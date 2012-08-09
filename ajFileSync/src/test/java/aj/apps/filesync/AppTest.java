@@ -1,7 +1,8 @@
 package aj.apps.filesync;
 
-import aj.apps.filesync.internal.AjFileSyncData.WhenNewNodeCreated;
 import aj.apps.filesync.internal.DataService;
+import aj.apps.filesync.internal.DataService.WhenChangesUploaded;
+import aj.apps.filesync.internal.DataService.WhenNewNodeCreated;
 import aj.apps.filesync.internal.engine.SyncEngine;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -38,6 +39,11 @@ public class AppTest
             public void createNewNode(String value, String title, WhenNewNodeCreated callback) {
                 System.out.println("Create node: "+title+" with "+value);
                 callback.thenDo(One.reference("http://test.com"));
+            }
+
+            public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
+                System.out.println("Upload: "+parameter+" with "+enclosedWithinComments);
+                callback.thenDo();
             }
         });
         
