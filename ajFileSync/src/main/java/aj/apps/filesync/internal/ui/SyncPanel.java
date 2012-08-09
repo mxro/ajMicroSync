@@ -36,7 +36,7 @@ public class SyncPanel extends javax.swing.JPanel {
                 };
     
     public void doSync() {
-        DefaultListModel model = (DefaultListModel) directories.getModel();
+        DefaultListModel model = (DefaultListModel) (directories.getModel());
         
         for (final Object elem: model.toArray()) {
             
@@ -101,7 +101,7 @@ public class SyncPanel extends javax.swing.JPanel {
                 if (!info.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     return false;
                 }
-
+               
                 // Get the fileList that is being dropped.
                 Transferable t = info.getTransferable();
                 List<File> data;
@@ -112,8 +112,11 @@ public class SyncPanel extends javax.swing.JPanel {
                 }
                 DefaultListModel model = (DefaultListModel) directories.getModel();
                 for (File file : data) {
+                    System.out.println("File added: "+file);
                     model.addElement(file.getAbsolutePath());
                 }
+                directories.repaint();
+                
                 return true;
             }
         };
@@ -142,6 +145,7 @@ public class SyncPanel extends javax.swing.JPanel {
 
         jLabel1.setText("Monitored Directories:");
 
+        directories.setModel(new DefaultListModel());
         jScrollPane1.setViewportView(directories);
 
         jButton2.setText("Remove");

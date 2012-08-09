@@ -74,6 +74,8 @@ public class MainFrame extends javax.swing.JFrame {
 
             public void run() {
                 final MainFrame mf = new MainFrame();
+                mf.setSize(500, 400);
+                mf.setLocation(600, 400);
                 mf.setVisible(true);
 
                 final AjLogin loginForm = new AjLogin(new AjLogin.WhenLoggedIn() {
