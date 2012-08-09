@@ -9,6 +9,9 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import one.core.domain.OneClient;
+import one.core.dsl.callbacks.WhenLoaded;
+import one.core.dsl.callbacks.results.WithLoadResult;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
 /**
@@ -18,7 +21,7 @@ import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 public class MainFrame extends javax.swing.JFrame {
 
     SyncPanel syncPanel;
-    
+
     /**
      * Creates new form MainFrame
      */
@@ -50,7 +53,7 @@ public class MainFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-         try {
+        try {
             // Set System L&F
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
@@ -72,23 +75,38 @@ public class MainFrame extends javax.swing.JFrame {
             public void run() {
                 final MainFrame mf = new MainFrame();
                 mf.setVisible(true);
-                
+
                 final AjLogin loginForm = new AjLogin(new AjLogin.WhenLoggedIn() {
 
-                    public void thenDo(Component loginForm, WithUserRegisteredResult wurr) {
-                        mf.contentPanel.remove(loginForm);
-                        
-                        mf.contentPanel.add(new SyncPanel(wurr), BorderLayout.CENTER);
-                        
-                        mf.contentPanel.validate();
-                        mf.contentPanel.revalidate();
+                    public void thenDo(final OneClient client, final Component p_loginForm, final WithUserRegisteredResult wurr) {
+
+                        client.one().load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
+
+                            @Override
+                            public void thenDo(WithLoadResult<Object> wlr) {
+                                mf.contentPanel.remove(p_loginForm);
+
+                                mf.contentPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
+
+                                mf.contentPanel.validate();
+                                mf.contentPanel.revalidate();
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+                                super.onFailure(t);
+                            }
+                        });
+
+
+
                     }
                 });
-                
+
                 mf.contentPanel.add(loginForm);
-                
+
                 loginForm.setVisible(true);
-                
+
             }
         });
     }

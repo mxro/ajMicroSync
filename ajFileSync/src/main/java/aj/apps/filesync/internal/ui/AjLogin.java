@@ -29,7 +29,7 @@ public class AjLogin extends javax.swing.JPanel {
 
     public interface WhenLoggedIn {
 
-        public void thenDo(Component loginForm, WithUserRegisteredResult wurr);
+        public void thenDo(OneClient client, Component loginForm, WithUserRegisteredResult wurr);
     }
 
     /**
@@ -189,8 +189,8 @@ public class AjLogin extends javax.swing.JPanel {
                     public void thenDo(WithUserRegisteredResult wurr) {
                        remove(lp);
                         showDetailsPanel();
-                        dsl.shutdown(c).and(WhenShutdown.DO_NOTHING);
-                        callback.thenDo(AjLogin.this, wurr);
+                        
+                        callback.thenDo(c, AjLogin.this, wurr);
                     }
 
                     public void onChallenge(WithChallengedContext wcc) {

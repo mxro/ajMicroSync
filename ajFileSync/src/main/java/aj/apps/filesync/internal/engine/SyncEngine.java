@@ -6,6 +6,7 @@ package aj.apps.filesync.internal.engine;
 
 import aj.apps.filesync.internal.AjFileSyncData;
 import aj.apps.filesync.internal.DataService;
+import aj.apps.filesync.internal.LogService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -44,7 +45,7 @@ public class SyncEngine {
         public void onFailure(Throwable t);
     }
 
-    public static void processFile(File inputFile, DataService service, final WhenFilesProcessed callback) throws Exception {
+    public static void processFile(File inputFile, final DataService dataService, final LogService logService, final WhenFilesProcessed callback) throws Exception {
 
         final List<String> files = getFilesRecursively(inputFile.getAbsoluteFile());
 
@@ -76,7 +77,7 @@ public class SyncEngine {
                 fis.close();
 
                 final String fileClosed = file;
-                processText(file, service, new WhenSyncComplete() {
+                processText(file, dataService, new WhenSyncComplete() {
 
                     public void onSuccess(String text) {
 
@@ -93,7 +94,7 @@ public class SyncEngine {
                                 return;
                             }
                         }
-
+                        logService.note("Processed file: "+filePath);
                         latch.registerSuccess();
                     }
 
