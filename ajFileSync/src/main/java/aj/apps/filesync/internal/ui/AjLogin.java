@@ -18,6 +18,7 @@ import one.core.dsl.callbacks.WhenUserLoggedIn;
 import one.core.dsl.callbacks.results.WithChallengedContext;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 import one.core.dsl.grammars.LoginWithUserDetailsParameters;
+import org.openide.util.NbPreferences;
 
 /**
  *
@@ -38,6 +39,21 @@ public class AjLogin extends javax.swing.JPanel {
     public AjLogin(WhenLoggedIn callback) {
         this.callback = callback;
         initComponents();
+        
+        final String email = NbPreferences.forModule(this.getClass()).node("login").get("email", null);
+        final String password = NbPreferences.forModule(this.getClass()).node("login").get("password", null);
+        
+        if (email != null) {
+            emailField.setText(email);
+        }
+        
+        if (password != null) {
+            passwordFiled.setText(password);
+        }
+        
+        if (email != null && password != null) {
+            loginButtonActionPerformed(null);
+        }
     }
 
     /**
@@ -57,6 +73,7 @@ public class AjLogin extends javax.swing.JPanel {
         passwordFiled = new javax.swing.JPasswordField();
         jButton2 = new javax.swing.JButton();
         loginButton = new javax.swing.JButton();
+        saveLoginData = new javax.swing.JCheckBox();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -80,6 +97,9 @@ public class AjLogin extends javax.swing.JPanel {
             }
         });
 
+        saveLoginData.setSelected(true);
+        saveLoginData.setText("Save Login Data");
+
         javax.swing.GroupLayout detailsPanelLayout = new javax.swing.GroupLayout(detailsPanel);
         detailsPanel.setLayout(detailsPanelLayout);
         detailsPanelLayout.setHorizontalGroup(
@@ -87,22 +107,25 @@ public class AjLogin extends javax.swing.JPanel {
             .addGroup(detailsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsPanelLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(loginButton))
                     .addGroup(detailsPanelLayout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 14, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(detailsPanelLayout.createSequentialGroup()
                         .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
                             .addComponent(jLabel1))
                         .addGap(18, 18, 18)
                         .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(detailsPanelLayout.createSequentialGroup()
+                                .addComponent(saveLoginData)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(emailField)
-                            .addComponent(passwordFiled))))
+                            .addComponent(passwordFiled)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(loginButton)))
                 .addContainerGap())
         );
         detailsPanelLayout.setVerticalGroup(
@@ -118,11 +141,13 @@ public class AjLogin extends javax.swing.JPanel {
                 .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(passwordFiled, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(saveLoginData)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(loginButton)
-                    .addComponent(jButton2))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton2)
+                    .addComponent(loginButton))
+                .addContainerGap(134, Short.MAX_VALUE))
         );
 
         add(detailsPanel, java.awt.BorderLayout.CENTER);
@@ -143,7 +168,11 @@ public class AjLogin extends javax.swing.JPanel {
     }
     
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-
+        
+        if (saveLoginData.isSelected()) {
+            NbPreferences.forModule(this.getClass()).node("login").put("email", emailField.getText());
+            NbPreferences.forModule(this.getClass()).node("login").put("password", String.valueOf(passwordFiled.getPassword()));
+        }
         this.remove(this.detailsPanel);
 
        final LogginInPanel lp = new LogginInPanel();
@@ -231,5 +260,6 @@ public class AjLogin extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JButton loginButton;
     private javax.swing.JPasswordField passwordFiled;
+    private javax.swing.JCheckBox saveLoginData;
     // End of variables declaration//GEN-END:variables
 }

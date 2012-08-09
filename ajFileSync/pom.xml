@@ -24,6 +24,16 @@
         </dependency>
     
         <dependency>
+     
+	<groupId>org.codeartisans.thirdparties.swing</groupId>
+	<artifactId>org-openide-util</artifactId>
+	<version>8.6.2</version>
+
+            
+            
+        </dependency>
+    
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
