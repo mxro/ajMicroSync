@@ -9,17 +9,25 @@ import aj.apps.microsync.internal.AjMicroSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
 import aj.apps.microsync.internal.engine.SyncEngine;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultListModel;
 import javax.swing.TransferHandler;
 import one.async.joiner.CallbackLatch;
 import one.core.domain.OneClient;
+import one.core.dsl.callbacks.WhenLoaded;
+import one.core.dsl.callbacks.results.WithLoadResult;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
 /**
@@ -214,6 +222,7 @@ public class SyncPanel extends javax.swing.JPanel {
         forceSyncButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jButton1 = new javax.swing.JButton();
 
         jLabel1.setText("Monitored Directories:");
 
@@ -275,6 +284,13 @@ public class SyncPanel extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        jButton1.setText("Logout");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -282,26 +298,33 @@ public class SyncPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel3)
-                        .addGap(35, 35, 35)
-                        .addComponent(removeButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                            .addComponent(jScrollPane2)
+                            .addComponent(jScrollPane1)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jLabel3)
+                                .addGap(35, 35, 35)
+                                .addComponent(removeButton)))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1))
+                    .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -367,9 +390,56 @@ public class SyncPanel extends javax.swing.JPanel {
         
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
+        prefs.remove("email");   
+       prefs.remove("password");
+        try {
+            prefs.flush();
+        } catch (BackingStoreException ex) {
+            throw new  RuntimeException(ex);
+        }
+        final Container parent = this.getParent();
+            
+        parent.remove(this);
+       
+       final Container destPanel = parent;
+        AjLogin login = new AjLogin(new AjLogin.WhenLoggedIn() {
+
+            public void thenDo(final OneClient client, final Component p_loginForm, final WithUserRegisteredResult wurr) {
+                
+                destPanel.remove(p_loginForm);
+                        destPanel.validate();
+                        //destPanel.revalidate();
+                        
+                        client.one().load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
+
+                            @Override
+                            public void thenDo(WithLoadResult<Object> wlr) {
+                               
+
+                                destPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
+
+                                destPanel.validate();
+                               // destPanel.revalidate();
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+                                super.onFailure(t);
+                            }
+                        });
+            }
+        });
+        parent.add(login, BorderLayout.CENTER);
+        parent.validate();
+             
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList directories;
     private javax.swing.JButton forceSyncButton;
+    private javax.swing.JButton jButton1;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

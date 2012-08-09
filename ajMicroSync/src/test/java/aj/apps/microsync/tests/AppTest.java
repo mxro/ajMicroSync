@@ -4,6 +4,7 @@ import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.DataService.WhenChangesUploaded;
 import aj.apps.microsync.internal.DataService.WhenNewNodeCreated;
 import aj.apps.microsync.internal.engine.SyncEngine;
+import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -84,7 +85,7 @@ public class AppTest
         SyncEngine.processText(baesText, "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
-                System.out.println(text);
+                Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->download+<!-- -->ignore", text);
             }
 
             public void onFailure(Throwable t) {

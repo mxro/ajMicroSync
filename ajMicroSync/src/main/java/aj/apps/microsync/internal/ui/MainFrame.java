@@ -7,6 +7,7 @@ package aj.apps.microsync.internal.ui;
 import aj.apps.microsync.internal.ui.AjLogin;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import one.core.domain.OneClient;
@@ -81,9 +82,11 @@ public class MainFrame extends javax.swing.JFrame {
                 final AjLogin loginForm = new AjLogin(new AjLogin.WhenLoggedIn() {
 
                     public void thenDo(final OneClient client, final Component p_loginForm, final WithUserRegisteredResult wurr) {
-                        mf.contentPanel.remove(p_loginForm);
-                        mf.contentPanel.validate();
-                        mf.contentPanel.revalidate();
+                        final JPanel destPanel = mf.contentPanel;
+                        
+                        destPanel.remove(p_loginForm);
+                        destPanel.validate();
+                        destPanel.revalidate();
                         
                         client.one().load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
 
@@ -91,10 +94,10 @@ public class MainFrame extends javax.swing.JFrame {
                             public void thenDo(WithLoadResult<Object> wlr) {
                                
 
-                                mf.contentPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
+                                destPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
 
-                                mf.contentPanel.validate();
-                                mf.contentPanel.revalidate();
+                                destPanel.validate();
+                                destPanel.revalidate();
                             }
 
                             @Override
