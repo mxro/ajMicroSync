@@ -17,7 +17,8 @@ In any plain text file, insert <!-- one.ignoreNext -->`<!-- one.createPublic [ti
 <!-- one.ignoreNext -->  
    
     Content not under version control.
-    <!-- one.createPublic ajMicroSync -->    
+    <!-- one.createPublic ajMicroSync -->   
+ 
     The content you want to keep under version control.
  
 <!-- one.ignoreNext -->
@@ -37,7 +38,8 @@ The plain text file will have been altered, with the <!-- one.ignoreNext -->`<!-
 <!-- one.ignoreNext -->
 
     Content not under version control.    
-    <!-- one.upload https://u1.linnk.it/qc8sbw/usr/apps/ajFileSync/docs/ajMicroSync -->    
+    <!-- one.upload https://u1.linnk.it/qc8sbw/usr/apps/ajFileSync/docs/ajMicroSync -->
+    
     The content you want to keep under version control.
     
 <!-- one.ignoreNext -->
