@@ -86,7 +86,7 @@ public class AjMicroSyncData implements DataService {
     }
 
     @Override
-    public void createNewNode(final String value, final String title, final String extension, final WhenNewNodeCreated callback) {
+    public void createNewNode(final String value, final String title, final String extension, final boolean isPublic,  final WhenNewNodeCreated callback) {
 
 
         assertAjFileSyncDataNode(new WhenSyncDataNodeAsserted() {
@@ -111,6 +111,9 @@ public class AjMicroSyncData implements DataService {
                             dsl.append(dsl.reference("https://admin1.linnk.it/types/v01/isHtmlValue")).to(wor.node()).in(client);
                         }
 
+                        if (isPublic) {
+                            dsl.append(dsl.newNode().asPublicReadToken()).to(wor.node()).in(client);
+                        }
                         
                         dsl.commit(client).and(new WhenCommitted() {
 

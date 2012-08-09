@@ -29,7 +29,7 @@ public class SyncEngine {
 
     public static enum Operation {
 
-        NONE, UPLOADNEW, UPLOAD, DOWNLOAD
+        NONE, UPLOADNEW, UPLOADPUBLIC, UPLOAD, DOWNLOAD
     };
 
     public interface WhenFilesProcessed {
@@ -175,12 +175,12 @@ public class SyncEngine {
             final String commentContent = file.substring(commentContentStart,
                     commentContentEnd);
 
-            if (operation == Operation.UPLOADNEW) {
+            if (operation == Operation.UPLOADNEW || operation == Operation.UPLOADPUBLIC) {
                 if (commentContent.length() == 0) {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
-                    dataService.createNewNode(enclosedWithinComments, parameter, extension, new AjMicroSyncData.WhenNewNodeCreated() {
+                    dataService.createNewNode(enclosedWithinComments, parameter, extension, operation == Operation.UPLOADPUBLIC,new AjMicroSyncData.WhenNewNodeCreated() {
 
                         public void thenDo(OneNode newNode) {
                             operation = Operation.NONE;
@@ -270,6 +270,15 @@ public class SyncEngine {
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
                         parameter = file.substring(commentContentStart + uploadNew.length() + 2,
+                                commentContentEnd);
+                    }
+                    
+                    String uploadPublic = "one.uploadPublic";
+                    if (content.startsWith(uploadNew)) {
+                        operation = Operation.UPLOADPUBLIC;
+                        lastCommentEnd = commentEnd;
+                        lastCommentStart = commentStart;
+                        parameter = file.substring(commentContentStart + uploadPublic.length() + 2,
                                 commentContentEnd);
                     }
 

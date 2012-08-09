@@ -100,7 +100,7 @@ public class AppTest
         public DummyDataService() {
         }
 
-        public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
+        public void createNewNode(String value, String title, String extension, boolean isPublic, WhenNewNodeCreated callback) {
             //System.out.println("Create node: "+title+" with "+value);
             callback.thenDo(One.reference("http://test.com"));
         }
