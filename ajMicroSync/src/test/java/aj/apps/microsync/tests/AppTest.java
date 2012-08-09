@@ -1,4 +1,4 @@
-package aj.apps.filesync;
+package aj.apps.microsync.tests;
 
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.DataService.WhenChangesUploaded;
