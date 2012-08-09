@@ -170,6 +170,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Synchronize in Background"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBox1ActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

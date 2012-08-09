@@ -13,6 +13,8 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultListModel;
 import javax.swing.TransferHandler;
@@ -43,7 +45,15 @@ public class SyncPanel extends javax.swing.JPanel {
                     
                 };
     
+    private volatile boolean syncing = false;
+    
     public void doSync() {
+        
+        if (syncing ) {
+            return;
+        }
+        
+        syncing = true;
         
         forceSyncButton.setEnabled(false);
         DefaultListModel model = (DefaultListModel) (directories.getModel());
@@ -56,12 +66,14 @@ public class SyncPanel extends javax.swing.JPanel {
             public void onCompleted() {
                progressBar.setValue(0);
                forceSyncButton.setEnabled(true);
+               syncing = false;
             }
 
             @Override
             public void onFailed(Throwable thrwbl) {
                 logService.note(thrwbl.getMessage());
                 progressBar.setValue(0);
+                syncing = false;
             }
         };
         
@@ -233,6 +245,11 @@ public class SyncPanel extends javax.swing.JPanel {
         });
 
         jCheckBox1.setText("Synchronize in Background");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -312,6 +329,43 @@ public class SyncPanel extends javax.swing.JPanel {
         model.remove(directories.getSelectedIndex());
        saveSelectedDirsToPrefs();   
     }//GEN-LAST:event_removeButtonActionPerformed
+
+    Timer timer ;
+    TimerTask syncTask;
+    
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        
+        if (jCheckBox1.isSelected()) {
+            if (timer != null) {
+                return;
+            }
+            
+            timer = new Timer();
+            
+            syncTask = new TimerTask() {
+
+                @Override
+                public void run() {
+                    doSync();
+                }
+                
+            };
+            
+            timer.scheduleAtFixedRate(syncTask, 1000 * 10, 1000 * 20);
+            
+            
+            return;
+        } else {
+            syncTask.cancel();
+            timer.purge();
+           
+            timer = null;
+            syncTask = null;
+        }
+        
+        
+        
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList directories;
