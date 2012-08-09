@@ -34,9 +34,9 @@ public class AppTest
 
     public void testUploadOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.upload mytest --> content <!-- --> ignore too", new DataService() {
+        SyncEngine.processText("ignore <!-- one.upload mytest --> content <!-- --> ignore too", "txt", new DataService() {
 
-            public void createNewNode(String value, String title, WhenNewNodeCreated callback) {
+            public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
                 //System.out.println("Create node: "+title+" with "+value);
                 callback.thenDo(One.reference("http://test.com"));
             }
@@ -60,9 +60,9 @@ public class AppTest
     
     public void testSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.sync http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", new DataService() {
+        SyncEngine.processText("ignore <!-- one.sync http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DataService() {
 
-            public void createNewNode(String value, String title, WhenNewNodeCreated callback) {
+            public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
                 //System.out.println("Create node: "+title+" with "+value);
                 callback.thenDo(One.reference("http://test.com"));
             }
@@ -86,9 +86,9 @@ public class AppTest
     
     public void testSyncUploadAndSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.sync http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.upload newNode --> to create <!-- --> too", new DataService() {
+        SyncEngine.processText("ignore <!-- one.sync http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.upload newNode --> to create <!-- --> too", "txt", new DataService() {
 
-            public void createNewNode(String value, String title, WhenNewNodeCreated callback) {
+            public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
                 System.out.println("Create node: "+title+" with "+value);
                 callback.thenDo(One.reference("http://test.com"));
             }

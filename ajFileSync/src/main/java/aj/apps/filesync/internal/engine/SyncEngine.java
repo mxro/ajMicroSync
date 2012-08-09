@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import one.async.joiner.CallbackLatch;
 import one.core.nodes.OneNode;
+import one.utils.OneUtils;
 
 /**
  *
@@ -78,7 +79,7 @@ public class SyncEngine {
 
             final String fileClosed = file;
              logService.note("Processing file: "+filePath);
-            processText(file, dataService, new WhenSyncComplete() {
+            processText(file, getExtension(filePath), dataService, new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
@@ -110,12 +111,14 @@ public class SyncEngine {
 
     }
 
-    public static void processText(String text, DataService service, final WhenSyncComplete callback) {
+    
+    
+    public static void processText(String text, String extension, DataService service, final WhenSyncComplete callback) {
         final Pattern p = Pattern.compile(commentRegex);
 
         final Matcher matcher = p.matcher(text);
 
-        new DoOperationsProcess(service, text, matcher, new OperationCallback() {
+        new DoOperationsProcess(service, text, extension, matcher, new OperationCallback() {
 
             @Override
             public void onSuccess(final String newFile) {
@@ -127,6 +130,11 @@ public class SyncEngine {
         }).start();
     }
 
+    private final static String getExtension(String path) {
+    final int idx = path.lastIndexOf(".");
+    return path.substring(idx + 1);
+  }
+    
     public static interface OperationCallback {
 
         public void onSuccess(String newFile);
@@ -143,6 +151,7 @@ public class SyncEngine {
         String parameter = "";
         Operation operation = Operation.NONE;
         private final DataService dataService;
+        private final String extension;
 
         public void start() {
 
@@ -171,11 +180,11 @@ public class SyncEngine {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
-                    dataService.createNewNode(enclosedWithinComments, parameter, new AjFileSyncData.WhenNewNodeCreated() {
+                    dataService.createNewNode(enclosedWithinComments, parameter, extension, new AjFileSyncData.WhenNewNodeCreated() {
 
                         public void thenDo(OneNode newNode) {
                             operation = Operation.NONE;
-                            replacements.add(new Replace(lastCommentStart, lastCommentEnd, "<-- one.sync " + newNode.getId() + " -->"));
+                            replacements.add(new Replace(lastCommentStart, lastCommentEnd, "<!-- one.sync " + newNode.getId() + " -->"));
                             next();
                         }
 
@@ -249,11 +258,12 @@ public class SyncEngine {
 
         }
 
-        public DoOperationsProcess(final DataService service, final String file, final Matcher matcher,
+        public DoOperationsProcess(final DataService service, final String file, String extension, final Matcher matcher,
                 final OperationCallback callback) {
             super();
             this.dataService = service;
             this.file = file;
+            this.extension = extension;
             this.matcher = matcher;
             this.callback = callback;
             this.replacements = new ArrayList<Replace>();
