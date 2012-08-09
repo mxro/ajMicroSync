@@ -13,11 +13,13 @@ You can download the latest executable below:[appjangle Micro Sync 0.0.1](https:
 In any plain text file, insert <!-- one.ignoreNext -->`<!-- one.createPublic [title] -->` statements as shown below.    
     
     Content not under version control.
+
 <!-- one.ignoreNext -->    
+    
     <!-- one.createPublic ajMicroSync -->    
-    The content you want to keep under version control.    
-<!-- one.ignoreNext -->
-    <!-- -->    
+    The content you want to keep under version control. 
+   
+<!-- one.ignoreNext --><!-- one.end -->    
     Content not under version control.    
 
 Now start appjangle Micro Sync by double-clicking on the downloaded JAR file.Sign in with an appjangle account. (You can easily sign up for free on [appjangle.com/signup](http://appjangle.com)).
@@ -39,4 +41,4 @@ The plain text file will have been altered, with the <!-- one.ignoreNext -->`<!-
 appjangle Micro Sync will have determined a globally unique identity for the text snippet you have marked.
 
 Any changes made to the text file, will from now on be uploaded to the cloud every time appjangle Micro Sync is run. 
-<!-- -->
+<!-- one.end -->

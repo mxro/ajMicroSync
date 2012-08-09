@@ -73,7 +73,7 @@ public class SyncEngine {
 
             String file = "";
             while (scanner.hasNextLine()) {
-                file += scanner.nextLine() +"\n";
+                file += scanner.nextLine() + "\n";
             }
             fis.close();
 
@@ -173,38 +173,62 @@ public class SyncEngine {
             final String commentContent = file.substring(commentContentStart,
                     commentContentEnd);
 
-            if (operation == Operation.UPLOADNEW || operation == Operation.UPLOADPUBLIC) {
-                if (commentContent.length() == 0) {
+            final String endMarker = "one.end";
+
+            final String uploadNew = "one.create";
+            final String uploadPublic = "one.createPublic";
+            final String upload = "one.upload";
+            final String download = "one.download";
+            final String ignore = "one.ignoreNext";
+
+
+            final String content;
+            if (commentContent.length() > 2) {
+             content = file.substring(
+                    commentContentStart + 1, commentContentEnd);
+            } else {
+                content = "";
+            }
+            
+            
+            if (content.startsWith(endMarker)) {
+
+                if (operation == Operation.UPLOADNEW || operation == Operation.UPLOADPUBLIC) {
+
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
-                    dataService.createNewNode(enclosedWithinComments, parameter, extension, operation == Operation.UPLOADPUBLIC, new AjMicroSyncData.WhenNewNodeCreated() {
+                    dataService.createNewNode(enclosedWithinComments,
+                            parameter,
+                            extension,
+                            operation == Operation.UPLOADPUBLIC,
+                            new AjMicroSyncData.WhenNewNodeCreated() {
 
-                        public void thenDo(OneNode newNode) {
-                            operation = Operation.NONE;
-                            replacements.add(new Replace(lastCommentStart, lastCommentEnd, "<!-- one.upload " + newNode.getId() + " -->"));
-                            next();
-                        }
+                                public void thenDo(OneNode newNode) {
+                                    operation = Operation.NONE;
+                                    replacements.add(new Replace(lastCommentStart, lastCommentEnd, "<!-- one.upload " + newNode.getId() + " -->"));
+                                    next();
+                                }
 
-                        public void onFailure(Throwable t) {
-                            t.printStackTrace();
-                            operation = Operation.NONE;
+                                public void onFailure(Throwable t) {
+                                    t.printStackTrace();
+                                    operation = Operation.NONE;
 
-                            next();
-                        }
-                    });
+                                    next();
+                                }
+                            });
 
 
 
                     return;
-                }
-            }
 
-            if (operation == Operation.UPLOAD) {
-                if (commentContent.length() == 0) {
+                }
+
+                if (operation == Operation.UPLOAD) {
+
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
-                    System.err.println("uploading: "+enclosedWithinComments);
+
                     dataService.uploadChanges(enclosedWithinComments, parameter, new DataService.WhenChangesUploaded() {
 
                         public void thenDo() {
@@ -222,11 +246,11 @@ public class SyncEngine {
                     });
 
                     return;
-                }
-            }
 
-            if (operation == Operation.DOWNLOAD) {
-                if (commentContent.length() == 0) {
+                }
+
+                if (operation == Operation.DOWNLOAD) {
+
                     final String localValue = file.substring(
                             lastCommentEnd, commentStart);
                     dataService.downloadChanges(localValue, parameter, new DataService.WhenChangesDownloaded() {
@@ -254,21 +278,17 @@ public class SyncEngine {
                         }
                     });
                     return;
+
                 }
             }
 
             if (operation == Operation.NONE) {
 
-                if (commentContent.length() > 6) {
-                    final String content = file.substring(
-                            commentContentStart + 1, commentContentEnd);
+                if (commentContent.length() > 4) {
 
-                    String uploadNew = "one.create";
-                    String uploadPublic = "one.createPublic";
-                    String upload = "one.upload";
-                    String download = "one.download";
-                    String ignore = "one.ignoreNext";
-                    
+
+
+
                     if (content.startsWith(uploadPublic)) {
                         operation = Operation.UPLOADPUBLIC;
                         lastCommentEnd = commentEnd;
@@ -277,8 +297,8 @@ public class SyncEngine {
                                 commentContentEnd);
                         next();
                         return;
-                    } 
-                    
+                    }
+
                     if (content.startsWith(uploadNew)) {
                         operation = Operation.UPLOADNEW;
                         lastCommentEnd = commentEnd;
@@ -287,8 +307,8 @@ public class SyncEngine {
                                 commentContentEnd);
                         next();
                         return;
-                    } 
-                    
+                    }
+
                     if (content.startsWith(upload)) {
                         operation = Operation.UPLOAD;
                         lastCommentEnd = commentEnd;
@@ -297,8 +317,8 @@ public class SyncEngine {
                                 commentContentEnd);
                         next();
                         return;
-                    } 
-                    
+                    }
+
                     if (content.startsWith(download)) {
                         operation = Operation.DOWNLOAD;
                         lastCommentEnd = commentEnd;
@@ -308,9 +328,9 @@ public class SyncEngine {
                         next();
                         return;
                     }
-                    
+
                     if (content.startsWith(ignore)) {
-                        
+
                         matcher.find();
                         next();
                     }

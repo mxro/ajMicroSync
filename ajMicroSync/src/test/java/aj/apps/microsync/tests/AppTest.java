@@ -35,7 +35,7 @@ public class AppTest
 
     public void testUploadOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- --> ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 System.out.println(text);
@@ -81,11 +81,11 @@ public class AppTest
     public void testDownloadOperation() {
         OneJre.init();
         
-        String baesText = "ignore<!-- one.download http://test.com/mynode -->download<!-- -->ignore";
+        String baesText = "ignore<!-- one.download http://test.com/mynode -->download<!-- one.end -->ignore";
         SyncEngine.processText(baesText, "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
-                Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->download+<!-- -->ignore", text);
+                Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->download+<!-- one.end -->ignore", text);
             }
 
             public void onFailure(Throwable t) {

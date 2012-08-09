@@ -9,6 +9,7 @@ import one.core.dsl.CoreDsl;
 import one.core.dsl.callbacks.WhenCommitted;
 import one.core.dsl.callbacks.WhenLoaded;
 import one.core.dsl.callbacks.WhenResponseFromServerReceived;
+import one.core.dsl.callbacks.WhenVersionsCleared;
 import one.core.dsl.callbacks.results.*;
 import one.core.nodes.OneNode;
 import one.core.nodes.OneTypedReference;
@@ -65,7 +66,22 @@ public class AjMicroSyncData implements DataService {
 
                     @Override
                     public void thenDo(WithOperationResult<OneValue<String>> wor) {
-                        callback.thenDo();
+                        dsl.clearVersions(wor.node()).andKeepOnServer(3).in(client).and(new WhenVersionsCleared() {
+
+                                    @Override
+                                    public void thenDo(WithVersionsClearedResult wvcr) {
+                                        callback.thenDo();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Throwable t) {
+                                        callback.onFailure(t);
+                                    }
+                                    
+                                    
+                                });
+                        
+                        
                     }
 
                     @Override
@@ -122,6 +138,8 @@ public class AjMicroSyncData implements DataService {
                             @Override
                             public void thenDo(WithCommittedResult wcr) {
                                callback.thenDo(wor.node());
+                               
+                               
                             }
                         });
                         
@@ -207,7 +225,7 @@ public class AjMicroSyncData implements DataService {
                     @Override
                     public void thenDo(WithLoadResult<Object> wlr) {
 
-                        assertChild(wlr.loadedNode(), "ajFileSync", new WhenLoaded() {
+                        assertChild(wlr.loadedNode(), "ajMicroSync", new WhenLoaded() {
 
                             @Override
                             public void thenDo(WithLoadResult<Object> wlr) {
