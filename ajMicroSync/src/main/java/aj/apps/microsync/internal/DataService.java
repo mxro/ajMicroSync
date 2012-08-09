@@ -30,4 +30,17 @@ public interface DataService {
     
     public void uploadChanges(String value, String nodeUri, WhenChangesUploaded callback);
     
+    
+    public interface WhenChangesDownloaded {
+        
+        public void onUnchanged();
+        
+        public void onChanged(String newValue);
+        
+        public void onFailure(Throwable t);
+        
+    }
+    
+    public void downloadChanges(String value, String nodeUri, WhenChangesDownloaded callback);
+    
 }

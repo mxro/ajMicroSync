@@ -29,7 +29,7 @@ public class SyncEngine {
 
     public static enum Operation {
 
-        NONE, UPLOAD, SYNC
+        NONE, UPLOADNEW, UPLOAD, DOWNLOAD
     };
 
     public interface WhenFilesProcessed {
@@ -175,7 +175,7 @@ public class SyncEngine {
             final String commentContent = file.substring(commentContentStart,
                     commentContentEnd);
 
-            if (operation == Operation.UPLOAD) {
+            if (operation == Operation.UPLOADNEW) {
                 if (commentContent.length() == 0) {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
@@ -202,7 +202,7 @@ public class SyncEngine {
                 }
             }
 
-            if (operation == Operation.SYNC) {
+            if (operation == Operation.UPLOAD) {
                 if (commentContent.length() == 0) {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
@@ -234,19 +234,30 @@ public class SyncEngine {
                     final String content = file.substring(
                             commentContentStart + 1, commentContentEnd);
 
-                    if (content.startsWith("one.upload")) {
-                        operation = Operation.UPLOAD;
+                    String uploadNew = "one.uploadNew";
+                    if (content.startsWith(uploadNew)) {
+                        operation = Operation.UPLOADNEW;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + "one.upload".length() + 2,
+                        parameter = file.substring(commentContentStart + uploadNew.length() + 2,
                                 commentContentEnd);
                     }
 
-                    if (content.startsWith("one.sync")) {
-                        operation = Operation.SYNC;
+                    String upload = "one.upload";
+                    if (content.startsWith(upload)) {
+                        operation = Operation.UPLOAD;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + "one.sync".length() + 2,
+                        parameter = file.substring(commentContentStart + upload.length() + 2,
+                                commentContentEnd);
+                    }
+                    
+                    String download = "one.download";
+                    if (content.startsWith(download)) {
+                        operation = Operation.DOWNLOAD;
+                        lastCommentEnd = commentEnd;
+                        lastCommentStart = commentStart;
+                        parameter = file.substring(commentContentStart + download.length() + 2,
                                 commentContentEnd);
                     }
 
