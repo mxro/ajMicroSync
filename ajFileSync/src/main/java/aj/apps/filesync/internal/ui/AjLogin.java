@@ -8,6 +8,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import one.client.jre.OneJre;
@@ -40,8 +42,10 @@ public class AjLogin extends javax.swing.JPanel {
         this.callback = callback;
         initComponents();
         
-        final String email = NbPreferences.forModule(this.getClass()).node("login").get("email", null);
-        final String password = NbPreferences.forModule(this.getClass()).node("login").get("password", null);
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        
+        final String email = prefs.get("email", null);
+        final String password = prefs.get("password", null);
         
         if (email != null) {
             emailField.setText(email);
@@ -170,8 +174,10 @@ public class AjLogin extends javax.swing.JPanel {
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
         
         if (saveLoginData.isSelected()) {
-            NbPreferences.forModule(this.getClass()).node("login").put("email", emailField.getText());
-            NbPreferences.forModule(this.getClass()).node("login").put("password", String.valueOf(passwordFiled.getPassword()));
+             Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+            
+           prefs.put("email", emailField.getText());
+            prefs.put("password", String.valueOf(passwordFiled.getPassword()));
         }
         this.remove(this.detailsPanel);
 
