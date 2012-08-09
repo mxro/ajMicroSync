@@ -29,21 +29,26 @@ public class SyncPanel extends javax.swing.JPanel {
 
                     public void note(String text) {
                         
-                        messages.setText(messages.getText()+"\n"+text);
+                        messages.setText(text+"\n"+messages.getText());
+                        
+                        if (messages.getText().length() > 1000) {
+                            messages.setText(messages.getText().substring(0, 999));
+                        }
                          
+                        messages.setCaretPosition(0);
                     }
                     
                 };
     
     public void doSync() {
         DefaultListModel model = (DefaultListModel) (directories.getModel());
-        
-        for (final Object elem: model.toArray()) {
+
+        for (int i=0; i<= model.getSize()-1; i++) {
             
-            if (elem instanceof String) {
-                
+            final String elem = model.get(i).toString();
+  
                 try {
-                
+                logService.note("Start processing: "+elem);
                 SyncEngine.processFile(new File((String) elem), dataService, logService , new SyncEngine.WhenFilesProcessed() {
 
                     public void onSuccess() {
@@ -61,7 +66,7 @@ public class SyncPanel extends javax.swing.JPanel {
                
                 
                 
-            }
+            
             
             
         }
@@ -112,7 +117,7 @@ public class SyncPanel extends javax.swing.JPanel {
                 }
                 DefaultListModel model = (DefaultListModel) directories.getModel();
                 for (File file : data) {
-                    System.out.println("File added: "+file);
+                    //System.out.println("File added: "+file);
                     model.addElement(file.getAbsolutePath());
                 }
                 directories.repaint();

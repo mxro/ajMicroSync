@@ -64,45 +64,47 @@ public class SyncEngine {
 
 
         for (final String filePath : files) {
-            if (filePath.endsWith(".html")) {
+            logService.note("Loading file: "+filePath);
 
-                final FileInputStream fis = new FileInputStream(new File(
-                        filePath));
-                final Scanner scanner = new Scanner(fis, "UTF-8");
+            final FileInputStream fis = new FileInputStream(new File(
+                    filePath));
+            final Scanner scanner = new Scanner(fis, "UTF-8");
 
-                String file = "";
-                while (scanner.hasNextLine()) {
-                    file += scanner.nextLine();
-                }
-                fis.close();
-
-                final String fileClosed = file;
-                processText(file, dataService, new WhenSyncComplete() {
-
-                    public void onSuccess(String text) {
-
-                        if (!text.equals(fileClosed)) {
-                            try {
-                                FileOutputStream fos = new FileOutputStream(new File(filePath));
-
-                                byte[] data = text.getBytes("UTF-8");
-                                fos.write(data, 0, data.length);
-
-                                fos.close();
-                            } catch (Exception e) {
-                                latch.registerFail(e);
-                                return;
-                            }
-                        }
-                        logService.note("Processed file: "+filePath);
-                        latch.registerSuccess();
-                    }
-
-                    public void onFailure(Throwable t) {
-                        latch.registerFail(t);
-                    }
-                });
+            String file = "";
+            while (scanner.hasNextLine()) {
+                file += scanner.nextLine();
             }
+            fis.close();
+
+            final String fileClosed = file;
+             logService.note("Processing file: "+filePath);
+            processText(file, dataService, new WhenSyncComplete() {
+
+                public void onSuccess(String text) {
+
+                    if (!text.equals(fileClosed)) {
+                         logService.note("Writing file: "+filePath);
+                        try {
+                            FileOutputStream fos = new FileOutputStream(new File(filePath));
+
+                            byte[] data = text.getBytes("UTF-8");
+                            fos.write(data, 0, data.length);
+
+                            fos.close();
+                        } catch (Exception e) {
+                            latch.registerFail(e);
+                            return;
+                        }
+                    }
+                    logService.note("Processed file: " + filePath);
+                    latch.registerSuccess();
+                }
+
+                public void onFailure(Throwable t) {
+                    latch.registerFail(t);
+                }
+            });
+
 
         }
 
@@ -210,10 +212,10 @@ public class SyncEngine {
                             next();
                         }
                     });
-                    
+
                     return;
                 }
-                
+
 
             }
 
@@ -227,7 +229,7 @@ public class SyncEngine {
                         operation = Operation.UPLOAD;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + "one.upload".length() + 1,
+                        parameter = file.substring(commentContentStart + "one.upload".length() + 2,
                                 commentContentEnd);
                     }
 
@@ -235,12 +237,12 @@ public class SyncEngine {
                         operation = Operation.SYNC;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + "one.sync".length() + 1,
+                        parameter = file.substring(commentContentStart + "one.sync".length() + 2,
                                 commentContentEnd);
                     }
 
                 }
-                
+
             }
 
             next();
