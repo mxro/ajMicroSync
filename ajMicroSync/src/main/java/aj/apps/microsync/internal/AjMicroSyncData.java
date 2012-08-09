@@ -13,6 +13,7 @@ import one.core.dsl.callbacks.results.*;
 import one.core.nodes.OneNode;
 import one.core.nodes.OneTypedReference;
 import one.core.nodes.OneValue;
+import one.utils.OneUtilsStrings;
 
 /**
  *
@@ -93,7 +94,7 @@ public class AjMicroSyncData implements DataService {
 
             public void thenDo(OneNode syncDataNode) {
                 final CoreDsl dsl = client.one();
-
+               
                 dsl.appendSafe(value).to(syncDataNode).atClosestAddress("./" + title).in(client).and(new WhenResponseFromServerReceived<OneValue<String>>() {
 
                     @Override
@@ -105,6 +106,7 @@ public class AjMicroSyncData implements DataService {
 
                         if (extension.equals("md")) {
                             dsl.append(dsl.reference("https://u1.linnk.it/6wbnoq/Types/isMarkdown")).to(wor.node()).in(client);
+                            dsl.append(dsl.reference("https://admin1.linnk.it/types/v01/isHtmlValue")).to(wor.node()).in(client);
                         }
 
                         if (extension.equals("html")) {
