@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package aj.apps.filesync.internal;
+package aj.apps.filesync.internal.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
