@@ -1,4 +1,4 @@
-package aj.apps.filesync;
+package aj.apps.microsync;
 
 import aj.apps.filesync.internal.ui.MainFrame;
 

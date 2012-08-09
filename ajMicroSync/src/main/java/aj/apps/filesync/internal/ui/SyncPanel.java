@@ -4,7 +4,7 @@
  */
 package aj.apps.filesync.internal.ui;
 
-import aj.apps.filesync.AjFileSync;
+import aj.apps.microsync.AjFileSync;
 import aj.apps.filesync.internal.AjFileSyncData;
 import aj.apps.filesync.internal.DataService;
 import aj.apps.filesync.internal.LogService;

@@ -4,7 +4,7 @@
  */
 package aj.apps.filesync.internal.ui;
 
-import aj.apps.filesync.AjFileSync;
+import aj.apps.microsync.AjFileSync;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
