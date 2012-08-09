@@ -3,6 +3,8 @@ ajMicroSync
 
 !!! [Please go to the updated documentation page](http://u1.linnk.it/qc8sbw/usr/apps/ajFileSync/docs/ajMicroSync.value.html) !!!
 
+----
+
 **Note**: The documentation below refers to the now obsolete version 0.0.1. Please check the link above for documentation and download link for the most recent version.
 
 appjangle Micro Sync is a kind of source code management system, which allows to keep only parts of files under version control.
