@@ -4,6 +4,9 @@
  */
 package aj.apps.filesync.internal.ui;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  *
  * @author mroh004
@@ -15,6 +18,28 @@ public class LogginInPanel extends javax.swing.JPanel {
      */
     public LogginInPanel() {
         initComponents();
+        
+        progressBar.setMaximum(20);
+        TimerTask tt = new TimerTask() {
+
+            @Override
+            public void run() {
+                
+                if (progressBar.getValue() == 20) {
+                    progressBar.setValue(0);
+                    return;
+                }
+                
+                progressBar.setValue(progressBar.getValue()+1);
+                
+            }
+            
+        };
+        
+        Timer t = new Timer();
+        
+        t.scheduleAtFixedRate(tt, 20, 400);
+        
     }
 
     /**
@@ -27,21 +52,33 @@ public class LogginInPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
 
-        jLabel1.setText("Login is being performed.");
+        jLabel1.setText("Please wait while login is being performed.");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(75, 75, 75)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(78, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(61, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
 }

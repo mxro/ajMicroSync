@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.TransferHandler;
+import one.async.joiner.CallbackLatch;
 import one.core.domain.OneClient;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
@@ -41,34 +42,51 @@ public class SyncPanel extends javax.swing.JPanel {
                 };
     
     public void doSync() {
+        
+        forceSyncButton.setEnabled(false);
         DefaultListModel model = (DefaultListModel) (directories.getModel());
 
+        progressBar.setMaximum((model.getSize()*2)+1);
+        progressBar.setValue(1);
+        final CallbackLatch latch = new CallbackLatch(model.getSize()) {
+
+            @Override
+            public void onCompleted() {
+               progressBar.setValue(0);
+               forceSyncButton.setEnabled(true);
+            }
+
+            @Override
+            public void onFailed(Throwable thrwbl) {
+                logService.note(thrwbl.getMessage());
+                progressBar.setValue(0);
+            }
+        };
+        
         for (int i=0; i<= model.getSize()-1; i++) {
             
             final String elem = model.get(i).toString();
   
                 try {
-                logService.note("Start processing: "+elem);
+                logService.note("Processing entry: "+elem);
+                progressBar.setValue(progressBar.getValue()+1);
                 SyncEngine.processFile(new File((String) elem), dataService, logService , new SyncEngine.WhenFilesProcessed() {
 
                     public void onSuccess() {
-                        logService.note("File processed: "+(String) elem );
+                        progressBar.setValue(progressBar.getValue()+1);
+                        logService.note("Entry processed: "+(String) elem );
+                        latch.registerSuccess();
                     }
 
                     public void onFailure(Throwable t) {
-                        logService.note(t.getMessage());
+                        latch.registerFail(t);
                     }
                 });
                 
                 } catch (Exception e ) {
                     logService.note(e.getMessage());
                 }
-               
                 
-                
-            
-            
-            
         }
         
         
@@ -141,19 +159,27 @@ public class SyncPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         directories = new javax.swing.JList();
-        jButton2 = new javax.swing.JButton();
+        removeButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         messages = new javax.swing.JTextArea();
-        forceSyncButton = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        forceSyncButton = new javax.swing.JButton();
+        progressBar = new javax.swing.JProgressBar();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
         jLabel1.setText("Monitored Directories:");
 
         directories.setModel(new DefaultListModel());
         jScrollPane1.setViewportView(directories);
 
-        jButton2.setText("Remove");
+        removeButton.setText("Remove");
+        removeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeButtonActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Messages");
 
@@ -161,14 +187,42 @@ public class SyncPanel extends javax.swing.JPanel {
         messages.setRows(5);
         jScrollPane2.setViewportView(messages);
 
-        forceSyncButton.setText("Force Sync");
+        jLabel3.setText("Add files and directories via drag and drop to box above!");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        forceSyncButton.setText("Synchronize Now");
         forceSyncButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 forceSyncButtonActionPerformed(evt);
             }
         });
 
-        jLabel3.setText("Add directories via drag and drop to box above!");
+        jCheckBox1.setText("Synchronize in Background");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(forceSyncButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCheckBox1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(forceSyncButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -179,12 +233,12 @@ public class SyncPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2)
                     .addComponent(jScrollPane1)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(forceSyncButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2))
+                        .addGap(35, 35, 35)
+                        .addComponent(removeButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -201,16 +255,14 @@ public class SyncPanel extends javax.swing.JPanel {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton2)
-                            .addComponent(forceSyncButton)
-                            .addComponent(jLabel3))
-                        .addGap(26, 26, 26))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
+                    .addComponent(removeButton)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -219,15 +271,24 @@ public class SyncPanel extends javax.swing.JPanel {
         doSync();
     }//GEN-LAST:event_forceSyncButtonActionPerformed
 
+    private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
+         DefaultListModel model = (DefaultListModel) (directories.getModel());
+        model.remove(directories.getSelectedIndex());
+         
+    }//GEN-LAST:event_removeButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList directories;
     private javax.swing.JButton forceSyncButton;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea messages;
+    private javax.swing.JProgressBar progressBar;
+    private javax.swing.JButton removeButton;
     // End of variables declaration//GEN-END:variables
 }

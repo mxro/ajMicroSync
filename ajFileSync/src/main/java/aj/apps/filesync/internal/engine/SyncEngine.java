@@ -65,7 +65,7 @@ public class SyncEngine {
 
 
         for (final String filePath : files) {
-            logService.note("Loading file: "+filePath);
+            logService.note("  Loading file: "+filePath);
 
             final FileInputStream fis = new FileInputStream(new File(
                     filePath));
@@ -78,13 +78,13 @@ public class SyncEngine {
             fis.close();
 
             final String fileClosed = file;
-             logService.note("Processing file: "+filePath);
+            logService.note("  Start processing file: "+filePath);
             processText(file, getExtension(filePath), dataService, new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
                     if (!text.equals(fileClosed)) {
-                         logService.note("Writing file: "+filePath);
+                         logService.note("  Writing file: "+filePath);
                         try {
                             FileOutputStream fos = new FileOutputStream(new File(filePath));
 
@@ -97,7 +97,7 @@ public class SyncEngine {
                             return;
                         }
                     }
-                    logService.note("Processed file: " + filePath);
+                    logService.note("  Processing completed for file: " + filePath);
                     latch.registerSuccess();
                 }
 
