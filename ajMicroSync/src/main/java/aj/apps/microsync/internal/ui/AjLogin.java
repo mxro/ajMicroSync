@@ -4,7 +4,7 @@
  */
 package aj.apps.microsync.internal.ui;
 
-import aj.apps.microsync.AjFileSync;
+import aj.apps.microsync.AjMicroSync;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -42,7 +42,7 @@ public class AjLogin extends javax.swing.JPanel {
         this.callback = callback;
         initComponents();
         
-        Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
+        Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
         
         final String email = prefs.get("email", null);
         final String password = prefs.get("password", null);
@@ -174,7 +174,7 @@ public class AjLogin extends javax.swing.JPanel {
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
         
         if (saveLoginData.isSelected()) {
-             Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
+             Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
             
            prefs.put("email", emailField.getText());
             prefs.put("password", String.valueOf(passwordFiled.getPassword()));

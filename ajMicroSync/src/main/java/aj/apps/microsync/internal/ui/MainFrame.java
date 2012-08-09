@@ -41,7 +41,7 @@ public class MainFrame extends javax.swing.JFrame {
         contentPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("appjangle FileSync");
+        setTitle("appjangle MicroSync");
 
         contentPanel.setLayout(new java.awt.BorderLayout());
         getContentPane().add(contentPanel, java.awt.BorderLayout.CENTER);

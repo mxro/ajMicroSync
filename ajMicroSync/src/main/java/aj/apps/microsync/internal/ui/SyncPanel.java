@@ -4,8 +4,8 @@
  */
 package aj.apps.microsync.internal.ui;
 
-import aj.apps.microsync.AjFileSync;
-import aj.apps.microsync.internal.AjFileSyncData;
+import aj.apps.microsync.AjMicroSync;
+import aj.apps.microsync.internal.AjMicroSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
 import aj.apps.microsync.internal.engine.SyncEngine;
@@ -103,7 +103,7 @@ public class SyncPanel extends javax.swing.JPanel {
 
         restoreSelectedDirsFromPrefs();
         
-        dataService = new AjFileSyncData(client, wurr);
+        dataService = new AjMicroSyncData(client, wurr);
         
         this.directories.setDragEnabled(true);
 
@@ -154,7 +154,7 @@ public class SyncPanel extends javax.swing.JPanel {
     }
 
     private void restoreSelectedDirsFromPrefs() {
-        Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
+        Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
         String dirs = prefs.get("dirs", null);
         if (dirs != null) {
             
@@ -169,7 +169,7 @@ public class SyncPanel extends javax.swing.JPanel {
     }
     
     private void saveSelectedDirsToPrefs() {
-        Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
+        Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
 
         DefaultListModel model = (DefaultListModel) (directories.getModel());
 

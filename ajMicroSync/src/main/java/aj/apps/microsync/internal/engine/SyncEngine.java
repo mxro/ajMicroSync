@@ -4,7 +4,7 @@
  */
 package aj.apps.microsync.internal.engine;
 
-import aj.apps.microsync.internal.AjFileSyncData;
+import aj.apps.microsync.internal.AjMicroSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
 import java.io.File;
@@ -180,7 +180,7 @@ public class SyncEngine {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
-                    dataService.createNewNode(enclosedWithinComments, parameter, extension, new AjFileSyncData.WhenNewNodeCreated() {
+                    dataService.createNewNode(enclosedWithinComments, parameter, extension, new AjMicroSyncData.WhenNewNodeCreated() {
 
                         public void thenDo(OneNode newNode) {
                             operation = Operation.NONE;

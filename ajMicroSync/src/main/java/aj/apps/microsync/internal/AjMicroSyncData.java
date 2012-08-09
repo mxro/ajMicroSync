@@ -18,12 +18,12 @@ import one.core.nodes.OneValue;
  *
  * @author Max
  */
-public class AjFileSyncData implements DataService {
+public class AjMicroSyncData implements DataService {
 
     private final OneClient client;
     private final WithUserRegisteredResult loginDetails;
 
-    public AjFileSyncData(OneClient client, WithUserRegisteredResult loginDetails) {
+    public AjMicroSyncData(OneClient client, WithUserRegisteredResult loginDetails) {
         this.client = client;
         this.loginDetails = loginDetails;
     }

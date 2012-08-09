@@ -6,7 +6,7 @@ import aj.apps.microsync.internal.ui.MainFrame;
  * Hello world!
  *
  */
-public class AjFileSync 
+public class AjMicroSync 
 {
     public static void main( String[] args )
     {
