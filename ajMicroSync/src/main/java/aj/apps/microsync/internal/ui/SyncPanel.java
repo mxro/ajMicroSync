@@ -44,8 +44,8 @@ public class SyncPanel extends javax.swing.JPanel {
                         
                         messages.setText(text+"\n"+messages.getText());
                         
-                        if (messages.getText().length() > 1000) {
-                            messages.setText(messages.getText().substring(0, 999));
+                        if (messages.getText().length() > 10000) {
+                            messages.setText(messages.getText().substring(0, 9999));
                         }
                          
                         messages.setCaretPosition(0);

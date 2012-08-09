@@ -50,6 +50,7 @@ public class SyncEngine {
 
         final List<String> files = getFilesRecursively(inputFile.getAbsoluteFile());
 
+        
         final CallbackLatch latch = new CallbackLatch(files.size()) {
 
             @Override
@@ -190,12 +191,10 @@ public class SyncEngine {
                 content = "";
             }
 
-           
-            
-            if (content.startsWith(ignore)) {
-                   System.out.println("Ignore!");
+            if (content.startsWith(ignore)) {       
                     matcher.find();
                     next();
+                    return;
                 }
             
             if (content.startsWith(endMarker)) {
