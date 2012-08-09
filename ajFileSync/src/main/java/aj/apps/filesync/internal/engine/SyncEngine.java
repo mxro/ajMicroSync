@@ -8,11 +8,13 @@ import aj.apps.filesync.internal.AjFileSyncData;
 import aj.apps.filesync.internal.DataService;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import one.async.joiner.CallbackLatch;
 import one.core.nodes.OneNode;
 
 /**
@@ -28,9 +30,39 @@ public class SyncEngine {
         NONE, UPLOAD, SYNC
     };
 
-    public static void processFile(File inputFile, DataService service) throws Exception {
+    public interface WhenFilesProcessed {
 
-        for (final String filePath : getFilesRecursively(inputFile.getAbsoluteFile())) {
+        public void onSuccess();
+
+        public void onFailure(Throwable t);
+    }
+
+    public interface WhenSyncComplete {
+
+        public void onSuccess(String text);
+
+        public void onFailure(Throwable t);
+    }
+
+    public static void processFile(File inputFile, DataService service, final WhenFilesProcessed callback) throws Exception {
+
+        final List<String> files = getFilesRecursively(inputFile.getAbsoluteFile());
+
+        final CallbackLatch latch = new CallbackLatch(files.size()) {
+
+            @Override
+            public void onCompleted() {
+                callback.onSuccess();
+            }
+
+            @Override
+            public void onFailed(Throwable thrwbl) {
+                callback.onFailure(thrwbl);
+            }
+        };
+
+
+        for (final String filePath : files) {
             if (filePath.endsWith(".html")) {
 
                 final FileInputStream fis = new FileInputStream(new File(
@@ -41,30 +73,57 @@ public class SyncEngine {
                 while (scanner.hasNextLine()) {
                     file += scanner.nextLine();
                 }
+                fis.close();
 
-                processText(file, service);
+                final String fileClosed = file;
+                processText(file, service, new WhenSyncComplete() {
+
+                    public void onSuccess(String text) {
+
+                        if (!text.equals(fileClosed)) {
+                            try {
+                                FileOutputStream fos = new FileOutputStream(new File(filePath));
+
+                                byte[] data = text.getBytes("UTF-8");
+                                fos.write(data, 0, data.length);
+
+                                fos.close();
+                            } catch (Exception e) {
+                                latch.registerFail(e);
+                                return;
+                            }
+                        }
+
+                        latch.registerSuccess();
+                    }
+
+                    public void onFailure(Throwable t) {
+                        latch.registerFail(t);
+                    }
+                });
             }
 
         }
 
     }
 
-    public static void processText(String text, DataService service) {
+    public static void processText(String text, DataService service, final WhenSyncComplete callback) {
         final Pattern p = Pattern.compile(commentRegex);
 
-                final Matcher matcher = p.matcher(text);
-                
-                new DoOperationsProcess(service, text, matcher, new OperationCallback() {
+        final Matcher matcher = p.matcher(text);
 
-                    @Override
-                    public void onSuccess(final String newFile) {
-                        System.out.println("all done");
-                        System.out.println("file: ");
-                        System.out.println(newFile);
-                    }
-                }).start();
+        new DoOperationsProcess(service, text, matcher, new OperationCallback() {
+
+            @Override
+            public void onSuccess(final String newFile) {
+                callback.onSuccess(newFile);
+                //System.out.println("all done");
+                //System.out.println("file: ");
+                // System.out.println(newFile);
+            }
+        }).start();
     }
-    
+
     public static interface OperationCallback {
 
         public void onSuccess(String newFile);
@@ -74,7 +133,6 @@ public class SyncEngine {
 
         final Matcher matcher;
         String file;
-        
         OperationCallback callback;
         List<Replace> replacements;
         int lastCommentEnd = -1;
@@ -91,9 +149,9 @@ public class SyncEngine {
 
         protected void next() {
             if (!matcher.find()) {
-                
+
                 callback.onSuccess(performReplacements(file, replacements));
-                
+
                 return;
             }
 
@@ -131,7 +189,7 @@ public class SyncEngine {
                     return;
                 }
             }
-            
+
             if (operation == Operation.SYNC) {
                 if (commentContent.length() == 0) {
                     final String enclosedWithinComments = file.substring(
@@ -151,10 +209,13 @@ public class SyncEngine {
                             next();
                         }
                     });
+                    
+                    return;
                 }
                 
+
             }
-            
+
             if (operation == Operation.NONE) {
 
                 if (commentContent.length() > 6) {
@@ -165,7 +226,7 @@ public class SyncEngine {
                         operation = Operation.UPLOAD;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + "one.upload".length()+1,
+                        parameter = file.substring(commentContentStart + "one.upload".length() + 1,
                                 commentContentEnd);
                     }
 
@@ -173,11 +234,12 @@ public class SyncEngine {
                         operation = Operation.SYNC;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + "one.sync".length()+1,
+                        parameter = file.substring(commentContentStart + "one.sync".length() + 1,
                                 commentContentEnd);
                     }
 
                 }
+                
             }
 
             next();
@@ -196,17 +258,17 @@ public class SyncEngine {
     }
 
     public static String performReplacements(String input, List<Replace> replacements) {
-        
+
         String result = input;
-        
+
         for (Replace r : replacements) {
-            
+
             result = result.substring(0, r.from) + r.with + result.substring(r.to);
-            
+
         }
         return result;
     }
-    
+
     public static class Replace {
 
         public int from;
