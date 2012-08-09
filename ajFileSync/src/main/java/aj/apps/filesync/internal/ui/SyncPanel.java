@@ -4,6 +4,7 @@
  */
 package aj.apps.filesync.internal.ui;
 
+import aj.apps.filesync.AjFileSync;
 import aj.apps.filesync.internal.AjFileSyncData;
 import aj.apps.filesync.internal.DataService;
 import aj.apps.filesync.internal.LogService;
@@ -12,6 +13,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.List;
+import java.util.prefs.Preferences;
 import javax.swing.DefaultListModel;
 import javax.swing.TransferHandler;
 import one.async.joiner.CallbackLatch;
@@ -99,6 +101,8 @@ public class SyncPanel extends javax.swing.JPanel {
         this.registrationInfos = wurr;
         initComponents();
 
+        restoreSelectedDirsFromPrefs();
+        
         dataService = new AjFileSyncData(client, wurr);
         
         this.directories.setDragEnabled(true);
@@ -140,6 +144,8 @@ public class SyncPanel extends javax.swing.JPanel {
                 }
                 directories.repaint();
                 
+                saveSelectedDirsToPrefs();
+                
                 return true;
             }
         };
@@ -147,6 +153,34 @@ public class SyncPanel extends javax.swing.JPanel {
 
     }
 
+    private void restoreSelectedDirsFromPrefs() {
+        Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
+        String dirs = prefs.get("dirs", null);
+        if (dirs != null) {
+            
+            for (String dir: dirs.split(";;;")) {
+                if (!dir.equals("")) {
+                    ((DefaultListModel) directories.getModel()).addElement(dir);
+                }
+            }
+            
+        }
+        
+    }
+    
+    private void saveSelectedDirsToPrefs() {
+        Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
+
+        DefaultListModel model = (DefaultListModel) (directories.getModel());
+
+        String dirs = "";
+        for (int i=0; i<= model.getSize()-1; i++) {
+            dirs = model.get(i).toString() +";;;";
+        }
+        
+        prefs.put("dirs", dirs);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -267,6 +301,8 @@ public class SyncPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    
     private void forceSyncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forceSyncButtonActionPerformed
         doSync();
     }//GEN-LAST:event_forceSyncButtonActionPerformed
@@ -274,7 +310,7 @@ public class SyncPanel extends javax.swing.JPanel {
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
          DefaultListModel model = (DefaultListModel) (directories.getModel());
         model.remove(directories.getSelectedIndex());
-         
+       saveSelectedDirsToPrefs();   
     }//GEN-LAST:event_removeButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

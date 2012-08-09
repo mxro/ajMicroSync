@@ -81,12 +81,15 @@ public class MainFrame extends javax.swing.JFrame {
                 final AjLogin loginForm = new AjLogin(new AjLogin.WhenLoggedIn() {
 
                     public void thenDo(final OneClient client, final Component p_loginForm, final WithUserRegisteredResult wurr) {
-
+                        mf.contentPanel.remove(p_loginForm);
+                        mf.contentPanel.validate();
+                        mf.contentPanel.revalidate();
+                        
                         client.one().load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
 
                             @Override
                             public void thenDo(WithLoadResult<Object> wlr) {
-                                mf.contentPanel.remove(p_loginForm);
+                               
 
                                 mf.contentPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
 

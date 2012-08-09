@@ -4,6 +4,7 @@
  */
 package aj.apps.filesync.internal.ui;
 
+import aj.apps.filesync.AjFileSync;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -20,7 +21,6 @@ import one.core.dsl.callbacks.WhenUserLoggedIn;
 import one.core.dsl.callbacks.results.WithChallengedContext;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 import one.core.dsl.grammars.LoginWithUserDetailsParameters;
-import org.openide.util.NbPreferences;
 
 /**
  *
@@ -42,7 +42,7 @@ public class AjLogin extends javax.swing.JPanel {
         this.callback = callback;
         initComponents();
         
-        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
         
         final String email = prefs.get("email", null);
         final String password = prefs.get("password", null);
@@ -174,7 +174,7 @@ public class AjLogin extends javax.swing.JPanel {
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
         
         if (saveLoginData.isSelected()) {
-             Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+             Preferences prefs = Preferences.userNodeForPackage(AjFileSync.class);
             
            prefs.put("email", emailField.getText());
             prefs.put("password", String.valueOf(passwordFiled.getPassword()));
