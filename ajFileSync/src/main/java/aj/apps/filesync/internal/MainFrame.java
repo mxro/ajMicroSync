@@ -4,7 +4,10 @@
  */
 package aj.apps.filesync.internal;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
 /**
@@ -13,6 +16,8 @@ import one.core.dsl.callbacks.results.WithUserRegisteredResult;
  */
 public class MainFrame extends javax.swing.JFrame {
 
+    SyncPanel syncPanel;
+    
     /**
      * Creates new form MainFrame
      */
@@ -35,17 +40,7 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("appjangle FileSync");
 
         contentPanel.setLayout(new java.awt.BorderLayout());
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(contentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 544, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(contentPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-        );
+        getContentPane().add(contentPanel, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -54,32 +49,19 @@ public class MainFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /*
-         * Set the Nimbus look and feel
-         */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /*
-         * If Nimbus (introduced in Java SE 6) is not available, stay with the
-         * default look and feel. For details see
-         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+         try {
+            // Set System L&F
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException e) {
+            // handle exception
+        } catch (ClassNotFoundException e) {
+            // handle exception
+        } catch (InstantiationException e) {
+            // handle exception
+        } catch (IllegalAccessException e) {
+            // handle exception
         }
-        //</editor-fold>
 
         /*
          * Create and display the form
@@ -94,6 +76,11 @@ public class MainFrame extends javax.swing.JFrame {
 
                     public void thenDo(Component loginForm, WithUserRegisteredResult wurr) {
                         mf.contentPanel.remove(loginForm);
+                        
+                        mf.contentPanel.add(new SyncPanel(wurr), BorderLayout.CENTER);
+                        
+                        mf.contentPanel.validate();
+                        mf.contentPanel.revalidate();
                     }
                 });
                 
