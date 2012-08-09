@@ -38,7 +38,5 @@ The marked contents of your text file should now be uploaded to your the appjang
     
 appjangle Micro Sync will have determined a globally unique identity for the text snippet you have marked.
 
-Any changes made to the text file, will from now on be uploaded to the cloud every time appjangle Micro Sync is run.
-
-If 
+Any changes made to the text file, will from now on be uploaded to the cloud every time appjangle Micro Sync is run. 
 <!-- -->
