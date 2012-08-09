@@ -100,6 +100,8 @@ public class SyncEngine {
 					final String enclosedWithinComments = file.substring(
 							lastCommentEnd, commentStart);
 
+                                        
+                                        
 					One.createRealm(parameter).and(new When.RealmCreated() {
 
 						@Override
@@ -133,7 +135,7 @@ public class SyncEngine {
 					final String contentStart = file.substring(
 							commentContentStart + 1, commentContentStart + 4);
 
-					if (contentStart.equals("/ul")) {
+					if (contentStart.equals("one.upload")) {
 						operation = Operation.UPLOAD;
 						lastCommentEnd = commentEnd;
 						lastCommentStart = commentStart;
@@ -141,10 +143,12 @@ public class SyncEngine {
 								commentContentEnd);
 					}
 
-					if (contentStart.equals("/sy")) {
+					if (contentStart.equals("one.sync")) {
 						operation = Operation.SYNC;
 						lastCommentEnd = commentEnd;
 						lastCommentStart = commentStart;
+                                                parameter = file.substring(commentContentStart + 5,
+								commentContentEnd);
 					}
 
 				}
