@@ -94,6 +94,23 @@ public class AppTest
         });
         
     }
+    
+    public void testIgnoreOperation() {
+        OneJre.init();
+        
+        String baesText = "ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end<!-- one.end -->ignore";
+        SyncEngine.processText(baesText, "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
+
+            public void onSuccess(String text) {
+                Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end+<!-- one.end -->ignore", text);
+            }
+
+            public void onFailure(Throwable t) {
+                throw new RuntimeException(t);
+            }
+        });
+        
+    }
 
     private static class DummyDataService implements DataService {
 

@@ -184,12 +184,19 @@ public class SyncEngine {
 
             final String content;
             if (commentContent.length() > 2) {
-             content = file.substring(
-                    commentContentStart + 1, commentContentEnd);
+                content = file.substring(
+                        commentContentStart + 1, commentContentEnd);
             } else {
                 content = "";
             }
+
+           
             
+            if (content.startsWith(ignore)) {
+                   System.out.println("Ignore!");
+                    matcher.find();
+                    next();
+                }
             
             if (content.startsWith(endMarker)) {
 
@@ -284,58 +291,49 @@ public class SyncEngine {
 
             if (operation == Operation.NONE) {
 
-                if (commentContent.length() > 4) {
-
-
-
-
-                    if (content.startsWith(uploadPublic)) {
-                        operation = Operation.UPLOADPUBLIC;
-                        lastCommentEnd = commentEnd;
-                        lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + uploadPublic.length() + 2,
-                                commentContentEnd);
-                        next();
-                        return;
-                    }
-
-                    if (content.startsWith(uploadNew)) {
-                        operation = Operation.UPLOADNEW;
-                        lastCommentEnd = commentEnd;
-                        lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + uploadNew.length() + 2,
-                                commentContentEnd);
-                        next();
-                        return;
-                    }
-
-                    if (content.startsWith(upload)) {
-                        operation = Operation.UPLOAD;
-                        lastCommentEnd = commentEnd;
-                        lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + upload.length() + 2,
-                                commentContentEnd);
-                        next();
-                        return;
-                    }
-
-                    if (content.startsWith(download)) {
-                        operation = Operation.DOWNLOAD;
-                        lastCommentEnd = commentEnd;
-                        lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + download.length() + 2,
-                                commentContentEnd);
-                        next();
-                        return;
-                    }
-
-                    if (content.startsWith(ignore)) {
-
-                        matcher.find();
-                        next();
-                    }
-
+                if (content.startsWith(uploadPublic)) {
+                    operation = Operation.UPLOADPUBLIC;
+                    lastCommentEnd = commentEnd;
+                    lastCommentStart = commentStart;
+                    parameter = file.substring(commentContentStart + uploadPublic.length() + 2,
+                            commentContentEnd);
+                    next();
+                    return;
                 }
+
+                if (content.startsWith(uploadNew)) {
+                    operation = Operation.UPLOADNEW;
+                    lastCommentEnd = commentEnd;
+                    lastCommentStart = commentStart;
+                    parameter = file.substring(commentContentStart + uploadNew.length() + 2,
+                            commentContentEnd);
+                    next();
+                    return;
+                }
+
+                if (content.startsWith(upload)) {
+                    operation = Operation.UPLOAD;
+                    lastCommentEnd = commentEnd;
+                    lastCommentStart = commentStart;
+                    parameter = file.substring(commentContentStart + upload.length() + 2,
+                            commentContentEnd);
+                    next();
+                    return;
+                }
+
+                if (content.startsWith(download)) {
+                    operation = Operation.DOWNLOAD;
+                    lastCommentEnd = commentEnd;
+                    lastCommentStart = commentStart;
+                    parameter = file.substring(commentContentStart + download.length() + 2,
+                            commentContentEnd);
+                    next();
+                    return;
+                }
+
+
+
+
 
             }
 
