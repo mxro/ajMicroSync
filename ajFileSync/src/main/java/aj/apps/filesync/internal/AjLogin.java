@@ -87,22 +87,22 @@ public class AjLogin extends javax.swing.JPanel {
             .addGroup(detailsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(detailsPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(29, 29, 29)
-                        .addComponent(emailField))
-                    .addGroup(detailsPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 14, Short.MAX_VALUE))
-                    .addGroup(detailsPanelLayout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(passwordFiled))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jButton2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(loginButton)))
+                        .addComponent(loginButton))
+                    .addGroup(detailsPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 14, Short.MAX_VALUE))
+                    .addGroup(detailsPanelLayout.createSequentialGroup()
+                        .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1))
+                        .addGap(18, 18, 18)
+                        .addGroup(detailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(emailField)
+                            .addComponent(passwordFiled))))
                 .addContainerGap())
         );
         detailsPanelLayout.setVerticalGroup(
@@ -137,8 +137,8 @@ public class AjLogin extends javax.swing.JPanel {
     private void showDetailsPanel() {
         this.add(this.detailsPanel, BorderLayout.CENTER);
        this.detailsPanel.setVisible(true);
-        this.validate();;
-        this.revalidate();;
+        this.validate();
+        this.revalidate();
                 
     }
     
@@ -146,20 +146,20 @@ public class AjLogin extends javax.swing.JPanel {
 
         this.remove(this.detailsPanel);
 
-        LogginInPanel lp = new LogginInPanel();
+       final LogginInPanel lp = new LogginInPanel();
         this.add(lp, BorderLayout.CENTER);
         lp.setVisible(true);
 
         lp.validate();
         lp.revalidate();
 
-        this.validate();;
+        this.validate();
         this.revalidate();
 
         
-        CoreDsl dsl = OneJre.init();
+        final CoreDsl dsl = OneJre.init();
         
-        OneClient c = dsl.createClient();
+        final OneClient c = dsl.createClient();
         
         dsl.loginUser(new LoginWithUserDetailsParameters() {
 
@@ -187,25 +187,36 @@ public class AjLogin extends javax.swing.JPanel {
                return new WhenUserLoggedIn() {
 
                     public void thenDo(WithUserRegisteredResult wurr) {
-                       
+                       remove(lp);
+                        showDetailsPanel();
+                        dsl.shutdown(c).and(WhenShutdown.DO_NOTHING);
+                        callback.thenDo(AjLogin.this, wurr);
                     }
 
                     public void onChallenge(WithChallengedContext wcc) {
-                        throw new UnsupportedOperationException("Not supported yet.");
+                        JOptionPane.showMessageDialog(null, "Unexpected challenge received.");
+                        remove(lp);
+                        showDetailsPanel();
                     }
 
                     public void onInvalidDetails() {
-                        throw new UnsupportedOperationException("Not supported yet.");
+                        JOptionPane.showMessageDialog(null, "Invalid username and/or password.");
+                        remove(lp);
+                        showDetailsPanel();
                     }
 
                     public void onNotRegisteredForApplication() {
-                        throw new UnsupportedOperationException("Not supported yet.");
+                       JOptionPane.showMessageDialog(null, "User is not registered for application.");
+                        remove(lp);
+                        showDetailsPanel();
                     }
 
                     public void onFailure(Throwable thrwbl) {
-                        throw new UnsupportedOperationException("Not supported yet.");
+                       JOptionPane.showMessageDialog(null, "Unexpected error: "+thrwbl);
+                        remove(lp);
+                        showDetailsPanel();
                     }
-                }
+                };
             }
         });
 

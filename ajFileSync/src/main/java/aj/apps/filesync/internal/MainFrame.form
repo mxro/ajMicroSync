@@ -23,27 +23,19 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
-              <Component id="loginPanel" min="-2" pref="422" max="-2" attributes="0"/>
-              <EmptySpace pref="72" max="32767" attributes="0"/>
-          </Group>
+          <Component id="contentPanel" alignment="0" pref="544" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
-              <Component id="loginPanel" min="-2" pref="184" max="-2" attributes="0"/>
-              <EmptySpace pref="91" max="32767" attributes="0"/>
-          </Group>
+          <Component id="contentPanel" alignment="0" pref="327" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Container class="javax.swing.JPanel" name="loginPanel">
+    <Container class="javax.swing.JPanel" name="contentPanel">
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
     </Container>
   </SubComponents>
 </Form>
