@@ -8,7 +8,7 @@ import aj.apps.microsync.AjFileSync;
 import aj.apps.microsync.internal.AjFileSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
-import aj.apps.filesync.internal.engine.SyncEngine;
+import aj.apps.microsync.internal.engine.SyncEngine;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;

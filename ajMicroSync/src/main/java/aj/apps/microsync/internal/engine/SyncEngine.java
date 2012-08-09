@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package aj.apps.filesync.internal.engine;
+package aj.apps.microsync.internal.engine;
 
 import aj.apps.microsync.internal.AjFileSyncData;
 import aj.apps.microsync.internal.DataService;
