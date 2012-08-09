@@ -65,7 +65,7 @@ public class SyncEngine {
 
 
         for (final String filePath : files) {
-            logService.note("  Loading file: "+filePath);
+            logService.note("  Loading file: " + filePath);
 
             final FileInputStream fis = new FileInputStream(new File(
                     filePath));
@@ -73,18 +73,18 @@ public class SyncEngine {
 
             String file = "";
             while (scanner.hasNextLine()) {
-                file += scanner.nextLine();
+                file += scanner.nextLine() +"\n";
             }
             fis.close();
 
             final String fileClosed = file;
-            logService.note("  Start processing file: "+filePath);
+            logService.note("  Start processing file: " + filePath);
             processText(file, getExtension(filePath), dataService, new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
                     if (!text.equals(fileClosed)) {
-                         logService.note("  Writing file: "+filePath);
+                        logService.note("  Writing file: " + filePath);
                         try {
                             FileOutputStream fos = new FileOutputStream(new File(filePath));
 
@@ -111,8 +111,6 @@ public class SyncEngine {
 
     }
 
-    
-    
     public static void processText(String text, String extension, DataService service, final WhenSyncComplete callback) {
         final Pattern p = Pattern.compile(commentRegex);
 
@@ -131,10 +129,10 @@ public class SyncEngine {
     }
 
     private final static String getExtension(String path) {
-    final int idx = path.lastIndexOf(".");
-    return path.substring(idx + 1);
-  }
-    
+        final int idx = path.lastIndexOf(".");
+        return path.substring(idx + 1);
+    }
+
     public static interface OperationCallback {
 
         public void onSuccess(String newFile);
@@ -180,11 +178,11 @@ public class SyncEngine {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
-                    dataService.createNewNode(enclosedWithinComments, parameter, extension, operation == Operation.UPLOADPUBLIC,new AjMicroSyncData.WhenNewNodeCreated() {
+                    dataService.createNewNode(enclosedWithinComments, parameter, extension, operation == Operation.UPLOADPUBLIC, new AjMicroSyncData.WhenNewNodeCreated() {
 
                         public void thenDo(OneNode newNode) {
                             operation = Operation.NONE;
-                            replacements.add(new Replace(lastCommentStart, lastCommentEnd, "<!-- one.sync " + newNode.getId() + " -->"));
+                            replacements.add(new Replace(lastCommentStart, lastCommentEnd, "<!-- one.upload " + newNode.getId() + " -->"));
                             next();
                         }
 
@@ -206,6 +204,7 @@ public class SyncEngine {
                 if (commentContent.length() == 0) {
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
+                    System.err.println("uploading: "+enclosedWithinComments);
                     dataService.uploadChanges(enclosedWithinComments, parameter, new DataService.WhenChangesUploaded() {
 
                         public void thenDo() {
@@ -233,18 +232,18 @@ public class SyncEngine {
                     dataService.downloadChanges(localValue, parameter, new DataService.WhenChangesDownloaded() {
 
                         public void onUnchanged() {
-                           operation = Operation.NONE;
+                            operation = Operation.NONE;
 
                             next();
                         }
 
                         public void onChanged(String newValue) {
-                           Replace replace = new Replace(lastCommentEnd, commentStart, newValue);
-                           replacements.add(replace);
-                           
-                           operation = Operation.NONE;
+                            Replace replace = new Replace(lastCommentEnd, commentStart, newValue);
+                            replacements.add(replace);
+
+                            operation = Operation.NONE;
                             next();
-                           
+
                         }
 
                         public void onFailure(Throwable t) {
@@ -257,47 +256,63 @@ public class SyncEngine {
                     return;
                 }
             }
-            
+
             if (operation == Operation.NONE) {
 
                 if (commentContent.length() > 6) {
                     final String content = file.substring(
                             commentContentStart + 1, commentContentEnd);
 
-                    String uploadNew = "one.uploadNew";
+                    String uploadNew = "one.create";
+                    String uploadPublic = "one.createPublic";
+                    String upload = "one.upload";
+                    String download = "one.download";
+                    String ignore = "one.ignoreNext";
+                    
+                    if (content.startsWith(uploadPublic)) {
+                        operation = Operation.UPLOADPUBLIC;
+                        lastCommentEnd = commentEnd;
+                        lastCommentStart = commentStart;
+                        parameter = file.substring(commentContentStart + uploadPublic.length() + 2,
+                                commentContentEnd);
+                        next();
+                        return;
+                    } 
+                    
                     if (content.startsWith(uploadNew)) {
                         operation = Operation.UPLOADNEW;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
                         parameter = file.substring(commentContentStart + uploadNew.length() + 2,
                                 commentContentEnd);
-                    }
+                        next();
+                        return;
+                    } 
                     
-                    String uploadPublic = "one.uploadPublic";
-                    if (content.startsWith(uploadNew)) {
-                        operation = Operation.UPLOADPUBLIC;
-                        lastCommentEnd = commentEnd;
-                        lastCommentStart = commentStart;
-                        parameter = file.substring(commentContentStart + uploadPublic.length() + 2,
-                                commentContentEnd);
-                    }
-
-                    String upload = "one.upload";
                     if (content.startsWith(upload)) {
                         operation = Operation.UPLOAD;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
                         parameter = file.substring(commentContentStart + upload.length() + 2,
                                 commentContentEnd);
-                    }
+                        next();
+                        return;
+                    } 
                     
-                    String download = "one.download";
                     if (content.startsWith(download)) {
                         operation = Operation.DOWNLOAD;
                         lastCommentEnd = commentEnd;
                         lastCommentStart = commentStart;
                         parameter = file.substring(commentContentStart + download.length() + 2,
                                 commentContentEnd);
+                        next();
+                        return;
+                    }
+                    
+                    if (content.startsWith(ignore)) {
+                        
+                        matcher.find();
+                        next();
                     }
 
                 }

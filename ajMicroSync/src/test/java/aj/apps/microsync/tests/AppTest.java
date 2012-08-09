@@ -35,10 +35,10 @@ public class AppTest
 
     public void testUploadOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.uploadNew mytest --> content <!-- --> ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- --> ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
-                
+                System.out.println(text);
             }
 
             public void onFailure(Throwable t) {
