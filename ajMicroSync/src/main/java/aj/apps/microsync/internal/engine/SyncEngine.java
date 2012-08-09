@@ -224,10 +224,40 @@ public class SyncEngine {
 
                     return;
                 }
-
-
             }
 
+            if (operation == Operation.DOWNLOAD) {
+                if (commentContent.length() == 0) {
+                    final String localValue = file.substring(
+                            lastCommentEnd, commentStart);
+                    dataService.downloadChanges(localValue, parameter, new DataService.WhenChangesDownloaded() {
+
+                        public void onUnchanged() {
+                           operation = Operation.NONE;
+
+                            next();
+                        }
+
+                        public void onChanged(String newValue) {
+                           Replace replace = new Replace(lastCommentEnd, commentStart, newValue);
+                           replacements.add(replace);
+                           
+                           operation = Operation.NONE;
+                            next();
+                           
+                        }
+
+                        public void onFailure(Throwable t) {
+                            t.printStackTrace();
+                            operation = Operation.NONE;
+
+                            next();
+                        }
+                    });
+                    return;
+                }
+            }
+            
             if (operation == Operation.NONE) {
 
                 if (commentContent.length() > 6) {

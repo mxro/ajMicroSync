@@ -139,6 +139,48 @@ public class AjMicroSyncData implements DataService {
 
     }
 
+    public void downloadChanges(final String localValue, String nodeUri, final WhenChangesDownloaded callback) {
+       final CoreDsl dsl = client.one();
+
+        dsl.load(nodeUri).in(client).and(new WhenLoaded() {
+
+            @Override
+            public void thenDo(WithLoadResult<Object> wlr) {
+                Object resolvedNode = dsl.dereference(wlr.loadedNode()).in(client);
+
+                if (!(resolvedNode instanceof OneValue<?>)) {
+                    callback.onFailure(new Exception("Node was not of type OneValue: " + wlr.loadedNode()));
+                    return;
+                }
+
+                OneValue<?> valueNode = (OneValue<?>) resolvedNode;
+
+                if (!(valueNode.getValue() instanceof String)) {
+                    callback.onFailure(new Exception("Value nodes value was not of type String: " + valueNode));
+                    return;
+                }
+
+                String remoteValue = (String) valueNode.getValue();
+
+                if (remoteValue.equals(localValue)) {
+                    callback.onUnchanged();
+                    return;
+                }
+                
+                callback.onChanged(remoteValue);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                callback.onFailure(t);
+            }
+            
+            
+        });
+        
+        
+    }
+
     private interface WhenSyncDataNodeAsserted {
 
         public void thenDo(OneNode syncDataNode);

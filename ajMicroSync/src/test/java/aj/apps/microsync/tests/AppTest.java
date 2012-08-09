@@ -34,18 +34,7 @@ public class AppTest
 
     public void testUploadOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.upload mytest --> content <!-- --> ignore too", "txt", new DataService() {
-
-            public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
-                //System.out.println("Create node: "+title+" with "+value);
-                callback.thenDo(One.reference("http://test.com"));
-            }
-
-            public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
-               // System.out.println("Upload: "+parameter+" with "+enclosedWithinComments);
-                callback.thenDo();
-            }
-        }, new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.uploadNew mytest --> content <!-- --> ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 
@@ -60,18 +49,7 @@ public class AppTest
     
     public void testSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.sync http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DataService() {
-
-            public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
-                //System.out.println("Create node: "+title+" with "+value);
-                callback.thenDo(One.reference("http://test.com"));
-            }
-
-            public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
-                //System.out.println("Upload: "+parameter+" with "+enclosedWithinComments);
-                callback.thenDo();
-            }
-        }, new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                
@@ -86,18 +64,24 @@ public class AppTest
     
     public void testSyncUploadAndSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.sync http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.upload newNode --> to create <!-- --> too", "txt", new DataService() {
+        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.uploadNew newNode --> to create <!-- --> too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
-            public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
-                System.out.println("Create node: "+title+" with "+value);
-                callback.thenDo(One.reference("http://test.com"));
+            public void onSuccess(String text) {
+                //System.out.println(text);
             }
 
-            public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
-                System.out.println("Upload: "+parameter+" with "+enclosedWithinComments);
-                callback.thenDo();
+            public void onFailure(Throwable t) {
+                throw new RuntimeException(t);
             }
-        }, new SyncEngine.WhenSyncComplete() {
+        });
+        
+    }
+    
+    public void testDownloadOperation() {
+        OneJre.init();
+        
+        String baesText = "ignore<!-- one.download http://test.com/mynode -->download<!-- -->ignore";
+        SyncEngine.processText(baesText, "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 System.out.println(text);
@@ -108,5 +92,28 @@ public class AppTest
             }
         });
         
+    }
+
+    private static class DummyDataService implements DataService {
+
+        public DummyDataService() {
+        }
+
+        public void createNewNode(String value, String title, String extension, WhenNewNodeCreated callback) {
+            //System.out.println("Create node: "+title+" with "+value);
+            callback.thenDo(One.reference("http://test.com"));
+        }
+
+        public void downloadChanges(String value, String nodeUri, WhenChangesDownloaded callback) {
+           
+            callback.onChanged(value+"+");
+        }
+
+        
+        
+        public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
+           // System.out.println("Upload: "+parameter+" with "+enclosedWithinComments);
+            callback.thenDo();
+        }
     }
 }
