@@ -13,6 +13,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <jarDest>C:\Users\mroh004\Dropbox\Public\onedb\mvn-releases</jarDest>
+		
+        <jarSnap>C:\Users\mroh004\Dropbox\Public\onedb\mvn-snapshots</jarSnap>
     </properties>
 
     <dependencies>
@@ -33,6 +37,33 @@
         </dependency>
     </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>one.app.desktop.OneDesktop</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     
     <repositories>
         <repository>
@@ -40,4 +71,18 @@
             <url>http://dl.dropbox.com/u/957046/onedb/mvn-releases</url>
         </repository>
     </repositories>
+    
+    <distributionManagement>
+        <repository>
+            <id>dropbox-releases</id>
+            <name>Releases to dropbox</name>
+            <url>file:///${jarDest}</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>dropbox-snapshots</id>
+            <name>Snapshots to dropbox</name>
+            <url>file://${jarSnap}</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
