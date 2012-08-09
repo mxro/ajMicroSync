@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package aj.apps.filesync.internal.ui;
+package aj.apps.microsync.internal.ui;
 
-import aj.apps.filesync.internal.ui.AjLogin;
+import aj.apps.microsync.internal.ui.AjLogin;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import javax.swing.UIManager;

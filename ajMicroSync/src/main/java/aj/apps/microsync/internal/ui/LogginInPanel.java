@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package aj.apps.filesync.internal.ui;
+package aj.apps.microsync.internal.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;

@@ -1,6 +1,6 @@
 package aj.apps.microsync;
 
-import aj.apps.filesync.internal.ui.MainFrame;
+import aj.apps.microsync.internal.ui.MainFrame;
 
 /**
  * Hello world!
