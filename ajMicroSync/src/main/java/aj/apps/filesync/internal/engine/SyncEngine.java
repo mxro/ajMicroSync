@@ -4,9 +4,9 @@
  */
 package aj.apps.filesync.internal.engine;
 
-import aj.apps.filesync.internal.AjFileSyncData;
-import aj.apps.filesync.internal.DataService;
-import aj.apps.filesync.internal.LogService;
+import aj.apps.microsync.internal.AjFileSyncData;
+import aj.apps.microsync.internal.DataService;
+import aj.apps.microsync.internal.LogService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

@@ -1,8 +1,8 @@
 package aj.apps.filesync;
 
-import aj.apps.filesync.internal.DataService;
-import aj.apps.filesync.internal.DataService.WhenChangesUploaded;
-import aj.apps.filesync.internal.DataService.WhenNewNodeCreated;
+import aj.apps.microsync.internal.DataService;
+import aj.apps.microsync.internal.DataService.WhenChangesUploaded;
+import aj.apps.microsync.internal.DataService.WhenNewNodeCreated;
 import aj.apps.filesync.internal.engine.SyncEngine;
 import junit.framework.Test;
 import junit.framework.TestCase;

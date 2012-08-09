@@ -5,9 +5,9 @@
 package aj.apps.filesync.internal.ui;
 
 import aj.apps.microsync.AjFileSync;
-import aj.apps.filesync.internal.AjFileSyncData;
-import aj.apps.filesync.internal.DataService;
-import aj.apps.filesync.internal.LogService;
+import aj.apps.microsync.internal.AjFileSyncData;
+import aj.apps.microsync.internal.DataService;
+import aj.apps.microsync.internal.LogService;
 import aj.apps.filesync.internal.engine.SyncEngine;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
