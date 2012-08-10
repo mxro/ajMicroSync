@@ -25,8 +25,22 @@ import one.utils.OneUtils;
  */
 public class SyncEngine {
 
-    static final String commentRegex = "\\?/?/? <![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";
+    static final String commentRegex = "(// )?\\<![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";
 
+    public static void main(String[] args) {
+        
+         final Pattern p = Pattern.compile(commentRegex);
+        final String str = "ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end // <!-- one.end -->ignore";
+         
+          final Matcher matcher = p.matcher(str);
+          matcher.find();
+           matcher.find();
+            matcher.find();
+            matcher.find();
+          System.out.println(str.substring(matcher.start()));
+        
+    }
+    
     public static enum Operation {
 
         NONE, UPLOADNEW, UPLOADPUBLIC, UPLOAD, DOWNLOAD
@@ -166,9 +180,16 @@ public class SyncEngine {
                 return;
             }
 
+           
+            
             final int commentStart = matcher.start();
             final int commentEnd = matcher.end();
-            final int commentContentStart = matcher.start() + 4;
+            final int commentContentStart;
+            if (!file.substring(matcher.start()).startsWith("// ")) {
+            commentContentStart = matcher.start() + 4;
+            } else {
+                commentContentStart = matcher.start() + 7;
+            }
             final int commentContentEnd = matcher.end() - 4;
 
             final String commentContent = file.substring(commentContentStart,

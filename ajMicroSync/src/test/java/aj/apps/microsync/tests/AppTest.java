@@ -38,7 +38,7 @@ public class AppTest
         SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
-                System.out.println(text);
+                //System.out.println(text);
             }
 
             public void onFailure(Throwable t) {
@@ -98,11 +98,12 @@ public class AppTest
     public void testIgnoreOperation() {
         OneJre.init();
         
-        String baesText = "ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end// <!-- one.end -->ignore";
+        String baesText = "ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end // <!-- one.end -->ignore";
         SyncEngine.processText(baesText, "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
-                Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end+// <!-- one.end -->ignore", text);
+                System.out.println(text);
+                Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end +// <!-- one.end -->ignore", text);
             }
 
             public void onFailure(Throwable t) {
@@ -123,14 +124,14 @@ public class AppTest
         }
 
         public void downloadChanges(String value, String nodeUri, WhenChangesDownloaded callback) {
-           
+           System.out.println("download: "+nodeUri+" with "+value);
             callback.onChanged(value+"+");
         }
 
         
         
         public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
-           // System.out.println("Upload: "+parameter+" with "+enclosedWithinComments);
+            
             callback.thenDo();
         }
     }
