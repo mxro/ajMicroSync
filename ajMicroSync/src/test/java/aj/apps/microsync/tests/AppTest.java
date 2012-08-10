@@ -102,7 +102,7 @@ public class AppTest
         SyncEngine.processText(baesText, "txt", new DummyDataService(), new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
-                System.out.println(text);
+               // System.out.println(text);
                 Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end +// <!-- one.end -->ignore", text);
             }
 
@@ -124,7 +124,7 @@ public class AppTest
         }
 
         public void downloadChanges(String value, String nodeUri, WhenChangesDownloaded callback) {
-           System.out.println("download: "+nodeUri+" with "+value);
+          // System.out.println("download: "+nodeUri+" with "+value);
             callback.onChanged(value+"+");
         }
 
