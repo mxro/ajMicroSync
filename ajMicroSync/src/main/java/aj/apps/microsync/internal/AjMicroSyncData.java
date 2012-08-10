@@ -34,7 +34,7 @@ public class AjMicroSyncData implements DataService {
 
         final CoreDsl dsl = client.one();
 
-        dsl.load(dsl.reference(nodeUri)).in(client).and(new WhenLoaded() {
+        dsl.reload(dsl.reference(nodeUri)).in(client).and(new WhenLoaded() {
 
             @Override
             public void thenDo(WithLoadResult<Object> wlr) {

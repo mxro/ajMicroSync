@@ -2,17 +2,17 @@
 ajMicroSync
 ==========
 
-appjangle Micro Sync enables you to keep text files or parts of text files in sync between multiple locations.
+appjangle MicroSync enables you to keep text files or parts of text files in sync between multiple locations.
 
-appjangle Micro Sync is a Java Swing application built on the [appjangle](http://appjangle.com) platform.
+appjangle MicroSync is a Java Swing application built on the [appjangle](http://appjangle.com) platform.
 
 You can download the latest executable below:
 
-[appjangle Micro Sync 0.0.2](https://dl.dropbox.com/u/957046/onedb/mvn-releases/aj/apps/microsync/ajMicroSync/0.0.2/ajMicroSync-0.0.2-jar-with-dependencies.jar)
+[appjangle MicroSync 0.0.2](https://dl.dropbox.com/u/957046/onedb/mvn-releases/aj/apps/microsync/ajMicroSync/0.0.2/ajMicroSync-0.0.2-jar-with-dependencies.jar)
 
 Or grab the source from github:
 
-[appjangle Micro Sync github repository](https://github.com/mxro/ajMicroSync)
+[appjangle MicroSync github repository](https://github.com/mxro/ajMicroSync)
 
 ## Usage
 
@@ -30,10 +30,10 @@ In any plain text file, insert <!-- one.ignoreNext -->`<!-- one.createPublic [ti
     <!-- one.end -->    
     Content not under version control.    
 
-Now start appjangle Micro Sync by double-clicking on the downloaded JAR file.Sign in with an appjangle account. 
+Now start appjangle MicroSync by double-clicking on the downloaded JAR file.Sign in with an appjangle account. 
 (You can easily sign up for free on [appjangle.com/signup](http://appjangle.com)).
 
-Drag and drop the file you have edited and/or the folder in which your file is stored onto the file list in appjangle Micro Sync.
+Drag and drop the file you have edited and/or the folder in which your file is stored onto the file list in appjangle MicroSync.
 
 Hit [Synchronize Now].
 
@@ -53,9 +53,9 @@ The plain text file will have been altered, with the <!-- one.ignoreNext -->`<!-
     <!-- one.end -->    
     Content not under version control.    
 
-appjangle Micro Sync will have determined a globally unique identity for the text snippet you have marked.
+appjangle MicroSync will have determined a globally unique identity for the text snippet you have marked.
 
-Any changes made to the text file, will from now on be uploaded to the cloud every time appjangle Micro Sync is run.
+Any changes made to the text file, will from now on be uploaded to the cloud every time appjangle MicroSync is run.
 
 ## Further Operations
 
@@ -89,7 +89,7 @@ been explicitly shared with).
 
 ### one.ignoreNext
 
-This is really just a handy utility function to write Micro Sync documentation (such as
+This is really just a handy utility function to write MicroSync documentation (such as
 this document). Adding <!-- one.ignoreNext -->`<!-- one.ignoreNext -->` *before* another
 operation declaration will lead to this operation being ignored.
 
