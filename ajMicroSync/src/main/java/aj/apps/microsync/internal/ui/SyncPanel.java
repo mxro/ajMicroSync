@@ -177,7 +177,7 @@ public class SyncPanel extends javax.swing.JPanel {
         Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
         String dirs = prefs.get("dirs", null);
         if (dirs != null) {
-            
+            System.out.println("Load Dirs: "+dirs);
             for (String dir: dirs.split(";;;")) {
                 if (!dir.equals("")) {
                     ((DefaultListModel) directories.getModel()).addElement(dir);
@@ -195,9 +195,9 @@ public class SyncPanel extends javax.swing.JPanel {
 
         String dirs = "";
         for (int i=0; i<= model.getSize()-1; i++) {
-            dirs = model.get(i).toString() +";;;";
+            dirs = dirs + model.get(i).toString() +";;;";
         }
-        
+        System.out.println("Save Dirs: "+dirs);
         prefs.put("dirs", dirs);
     }
     
