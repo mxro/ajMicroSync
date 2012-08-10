@@ -224,7 +224,7 @@ public class SyncPanel extends javax.swing.JPanel {
         jCheckBox1 = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
 
-        jLabel1.setText("Monitored Directories:");
+        jLabel1.setText("Monitored Files and Directories:");
 
         directories.setModel(new DefaultListModel());
         jScrollPane1.setViewportView(directories);
