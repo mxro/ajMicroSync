@@ -25,7 +25,7 @@ import one.utils.OneUtils;
  */
 public class SyncEngine {
 
-    static final String commentRegex = "\\<![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";
+    static final String commentRegex = "\\?/?/? <![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";
 
     public static enum Operation {
 
