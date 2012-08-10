@@ -33,7 +33,7 @@ In any plain text file, insert <!-- one.ignoreNext -->`<!-- one.createPublic [ti
 Now start appjangle Micro Sync by double-clicking on the downloaded JAR file.Sign in with an appjangle account. 
 (You can easily sign up for free on [appjangle.com/signup](http://appjangle.com)).
 
-Drag and drop the file you have edit and or the folder in which your file is stored onto the file list in appjangle Micro Sync.
+Drag and drop the file you have edited and/or the folder in which your file is stored onto the file list in appjangle Micro Sync.
 
 Hit [Synchronize Now].
 
