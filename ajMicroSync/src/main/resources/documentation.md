@@ -18,7 +18,7 @@ Or grab the source from github:
 
 ### New in 0.0.3
 
-- Synchronization will only be conducted for files, which are modified on the local disc.
+- Upload operation will only be performed for files, which are modified on the local disc.
 - Saving a login will not persist email and password any longer but only a session id.
 
 ### New in 0.0.2
