@@ -40,41 +40,39 @@ public class SyncPanel extends javax.swing.JPanel {
     DataService dataService;
     LogService logService = new LogService() {
 
-                    public void note(String text) {
-                        
-                        messages.setText(text+"\n"+messages.getText());
-                        
-                        if (messages.getText().length() > 10000) {
-                            messages.setText(messages.getText().substring(0, 9999));
-                        }
-                         
-                        messages.setCaretPosition(0);
-                    }
-                    
-                };
-    
+        public void note(String text) {
+
+            messages.setText(text + "\n" + messages.getText());
+
+            if (messages.getText().length() > 10000) {
+                messages.setText(messages.getText().substring(0, 9999));
+            }
+
+            messages.setCaretPosition(0);
+        }
+    };
     private volatile boolean syncing = false;
-    
+
     public void doSync() {
-        
-        if (syncing ) {
+
+        if (syncing) {
             return;
         }
-        
+
         syncing = true;
-        
+
         forceSyncButton.setEnabled(false);
         DefaultListModel model = (DefaultListModel) (directories.getModel());
 
-        progressBar.setMaximum((model.getSize()*2)+1);
+        progressBar.setMaximum((model.getSize() * 2) + 1);
         progressBar.setValue(1);
         final CallbackLatch latch = new CallbackLatch(model.getSize()) {
 
             @Override
             public void onCompleted() {
-               progressBar.setValue(0);
-               forceSyncButton.setEnabled(true);
-               syncing = false;
+                progressBar.setValue(0);
+                forceSyncButton.setEnabled(true);
+                syncing = false;
             }
 
             @Override
@@ -84,19 +82,19 @@ public class SyncPanel extends javax.swing.JPanel {
                 syncing = false;
             }
         };
-        
-        for (int i=0; i<= model.getSize()-1; i++) {
-            
+
+        for (int i = 0; i <= model.getSize() - 1; i++) {
+
             final String elem = model.get(i).toString();
-  
-                try {
-                logService.note("Processing entry: "+elem);
-                progressBar.setValue(progressBar.getValue()+1);
-                SyncEngine.processFile(new File((String) elem), dataService, logService , new SyncEngine.WhenFilesProcessed() {
+
+            try {
+                logService.note("Processing entry: " + elem);
+                progressBar.setValue(progressBar.getValue() + 1);
+                SyncEngine.processFile(new File((String) elem), dataService, logService, new SyncEngine.WhenFilesProcessed() {
 
                     public void onSuccess() {
-                        progressBar.setValue(progressBar.getValue()+1);
-                        logService.note("Entry processed: "+(String) elem );
+                        progressBar.setValue(progressBar.getValue() + 1);
+                        logService.note("Entry processed: " + (String) elem);
                         latch.registerSuccess();
                     }
 
@@ -104,16 +102,16 @@ public class SyncPanel extends javax.swing.JPanel {
                         latch.registerFail(t);
                     }
                 });
-                
-                } catch (Exception e ) {
-                    logService.note(e.getMessage());
-                }
-                
+
+            } catch (Exception e) {
+                logService.note(e.getMessage());
+            }
+
         }
-        
-        
+
+
     }
-    
+
     /**
      * Creates new form SyncPanel
      */
@@ -122,9 +120,9 @@ public class SyncPanel extends javax.swing.JPanel {
         initComponents();
 
         restoreSelectedDirsFromPrefs();
-        
+
         dataService = new AjMicroSyncData(client, wurr);
-        
+
         this.directories.setDragEnabled(true);
 
         TransferHandler handler = new TransferHandler() {
@@ -148,7 +146,7 @@ public class SyncPanel extends javax.swing.JPanel {
                 if (!info.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
                     return false;
                 }
-               
+
                 // Get the fileList that is being dropped.
                 Transferable t = info.getTransferable();
                 List<File> data;
@@ -163,9 +161,9 @@ public class SyncPanel extends javax.swing.JPanel {
                     model.addElement(file.getAbsolutePath());
                 }
                 directories.repaint();
-                
+
                 saveSelectedDirsToPrefs();
-                
+
                 return true;
             }
         };
@@ -177,30 +175,30 @@ public class SyncPanel extends javax.swing.JPanel {
         Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
         String dirs = prefs.get("dirs", null);
         if (dirs != null) {
-          
-            for (String dir: dirs.split(";;;")) {
+
+            for (String dir : dirs.split(";;;")) {
                 if (!dir.equals("")) {
                     ((DefaultListModel) directories.getModel()).addElement(dir);
                 }
             }
-            
+
         }
-        
+
     }
-    
+
     private void saveSelectedDirsToPrefs() {
         Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
 
         DefaultListModel model = (DefaultListModel) (directories.getModel());
 
         String dirs = "";
-        for (int i=0; i<= model.getSize()-1; i++) {
-            dirs = dirs + model.get(i).toString() +";;;";
+        for (int i = 0; i <= model.getSize() - 1; i++) {
+            dirs = dirs + model.get(i).toString() + ";;;";
         }
-       
+
         prefs.put("dirs", dirs);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -341,101 +339,96 @@ public class SyncPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    
     private void forceSyncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forceSyncButtonActionPerformed
         doSync();
     }//GEN-LAST:event_forceSyncButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
-         DefaultListModel model = (DefaultListModel) (directories.getModel());
+        DefaultListModel model = (DefaultListModel) (directories.getModel());
         model.remove(directories.getSelectedIndex());
-       saveSelectedDirsToPrefs();   
+        saveSelectedDirsToPrefs();
     }//GEN-LAST:event_removeButtonActionPerformed
-
-    Timer timer ;
+    Timer timer;
     TimerTask syncTask;
-    
+
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        
+
         if (jCheckBox1.isSelected()) {
             if (timer != null) {
                 return;
             }
-            
+
             timer = new Timer();
-            
+
             syncTask = new TimerTask() {
 
                 @Override
                 public void run() {
                     doSync();
                 }
-                
             };
-            
+
             timer.scheduleAtFixedRate(syncTask, 1000 * 10, 1000 * 20);
-            
-            
+
+
             return;
         } else {
             syncTask.cancel();
             timer.purge();
-           
+
             timer = null;
             syncTask = null;
         }
-        
-        
-        
+
+
+
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
-        prefs.remove("email");   
-       prefs.remove("password");
+        Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
+        prefs.remove("sessionId");
+       
         try {
             prefs.flush();
         } catch (BackingStoreException ex) {
-            throw new  RuntimeException(ex);
+            throw new RuntimeException(ex);
         }
         final Container parent = this.getParent();
-            
+
         parent.remove(this);
-       
-       final Container destPanel = parent;
+
+        final Container destPanel = parent;
         AjLogin login = new AjLogin(new AjLogin.WhenLoggedIn() {
 
             public void thenDo(final OneClient client, final Component p_loginForm, final WithUserRegisteredResult wurr) {
-                
+
                 destPanel.remove(p_loginForm);
+                destPanel.validate();
+                //destPanel.revalidate();
+
+                client.one().load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
+
+                    @Override
+                    public void thenDo(WithLoadResult<Object> wlr) {
+
+
+                        destPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
+
                         destPanel.validate();
-                        //destPanel.revalidate();
-                        
-                        client.one().load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
+                        // destPanel.revalidate();
+                    }
 
-                            @Override
-                            public void thenDo(WithLoadResult<Object> wlr) {
-                               
-
-                                destPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
-
-                                destPanel.validate();
-                               // destPanel.revalidate();
-                            }
-
-                            @Override
-                            public void onFailure(Throwable t) {
-                                super.onFailure(t);
-                            }
-                        });
+                    @Override
+                    public void onFailure(Throwable t) {
+                        super.onFailure(t);
+                    }
+                });
             }
         });
         parent.add(login, BorderLayout.CENTER);
         parent.validate();
-             
-    }//GEN-LAST:event_jButton1ActionPerformed
 
+    }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList directories;
     private javax.swing.JButton forceSyncButton;

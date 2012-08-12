@@ -222,8 +222,8 @@ public class AjLogin extends javax.swing.JPanel {
                             
                         }
                         
-                        remove(lp);
-                        showDetailsPanel();
+                        //remove(lp);
+                        //showDetailsPanel();
                         
                         callback.thenDo(c, AjLogin.this, wurr);
                     }
