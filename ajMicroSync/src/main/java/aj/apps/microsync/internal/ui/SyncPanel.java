@@ -8,6 +8,7 @@ import aj.apps.microsync.AjMicroSync;
 import aj.apps.microsync.internal.AjMicroSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
+import aj.apps.microsync.internal.engine.FileCache;
 import aj.apps.microsync.internal.engine.SyncEngine;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,6 +39,7 @@ public class SyncPanel extends javax.swing.JPanel {
 
     WithUserRegisteredResult registrationInfos;
     DataService dataService;
+    FileCache fileCache = new FileCache();
     LogService logService = new LogService() {
 
         public void note(String text) {
@@ -90,7 +92,7 @@ public class SyncPanel extends javax.swing.JPanel {
             try {
                 logService.note("Processing entry: " + elem);
                 progressBar.setValue(progressBar.getValue() + 1);
-                SyncEngine.processFile(new File((String) elem), dataService, logService, new SyncEngine.WhenFilesProcessed() {
+                SyncEngine.processFile(new File((String) elem), dataService, logService, fileCache, new SyncEngine.WhenFilesProcessed() {
 
                     public void onSuccess() {
                         progressBar.setValue(progressBar.getValue() + 1);
@@ -340,6 +342,7 @@ public class SyncPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void forceSyncButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forceSyncButtonActionPerformed
+        fileCache = new FileCache();
         doSync();
     }//GEN-LAST:event_forceSyncButtonActionPerformed
 

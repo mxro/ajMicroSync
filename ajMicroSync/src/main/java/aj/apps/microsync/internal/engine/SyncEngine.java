@@ -46,7 +46,11 @@ public class SyncEngine {
         public void onFailure(Throwable t);
     }
 
-    public static void processFile(File inputFile, final DataService dataService, final LogService logService, final WhenFilesProcessed callback) throws Exception {
+    public static void processFile(final File inputFile, 
+            final DataService dataService, 
+            final LogService logService,
+            final FileCache cache,
+            final WhenFilesProcessed callback) throws Exception {
 
         final List<String> files = getFilesRecursively(inputFile.getAbsoluteFile());
 
@@ -66,6 +70,11 @@ public class SyncEngine {
 
 
         for (final String filePath : files) {
+            if (!cache.isModified(new File(filePath))) {
+                logService.note("  Skipped unchanged file: "+filePath);
+                continue;
+            }
+            
             logService.note("  Loading file: " + filePath);
 
             final FileInputStream fis = new FileInputStream(new File(
@@ -171,7 +180,7 @@ public class SyncEngine {
             final int commentStart = matcher.start();
             final int commentEnd = matcher.end();
             final int commentContentStart;
-            
+
             //System.out.println("Matched: "+file.substring(matcher.start()));
             if (!file.substring(matcher.start()).startsWith("// ")) {
                 commentContentStart = matcher.start() + 4;
@@ -223,7 +232,7 @@ public class SyncEngine {
                                     operation = Operation.NONE;
                                     String replacement = "<!-- one.upload " + newNode.getId() + " -->";
                                     if (file.substring(lastCommentStart).startsWith("// ")) {
-                                        replacement = "// "+replacement;
+                                        replacement = "// " + replacement;
                                     }
                                     replacements.add(new Replace(lastCommentStart, lastCommentEnd, replacement));
                                     next();
