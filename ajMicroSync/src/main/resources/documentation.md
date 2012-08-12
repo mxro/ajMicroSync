@@ -14,7 +14,7 @@ Or grab the source from github:
 
 [appjangle MicroSync github repository](https://github.com/mxro/ajMicroSync)
 
-## Versions
+## Changelog
 
 ### New in 0.0.3
 
