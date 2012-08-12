@@ -25,7 +25,7 @@ public class FileCache {
 
         if (!lastModified.containsKey(file.getAbsolutePath())) {
             logLastModified(file);
-            return false;
+            return true;
         }
 
         long lastValue = lastModified.get(file.getAbsolutePath());

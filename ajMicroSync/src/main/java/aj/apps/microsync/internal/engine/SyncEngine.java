@@ -72,6 +72,7 @@ public class SyncEngine {
         for (final String filePath : files) {
             if (!cache.isModified(new File(filePath))) {
                 logService.note("  Skipped unchanged file: "+filePath);
+                latch.registerSuccess();
                 continue;
             }
             

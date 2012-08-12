@@ -371,7 +371,7 @@ public class SyncPanel extends javax.swing.JPanel {
                 }
             };
 
-            timer.scheduleAtFixedRate(syncTask, 1000 * 10, 1000 * 20);
+            timer.scheduleAtFixedRate(syncTask, 10, 1000 * 20);
 
 
             return;

@@ -8,11 +8,24 @@ appjangle MicroSync is a Java Swing application built on the [appjangle](http://
 
 You can download the latest executable below:
 
-[appjangle MicroSync 0.0.2](https://dl.dropbox.com/u/957046/onedb/mvn-releases/aj/apps/microsync/ajMicroSync/0.0.2/ajMicroSync-0.0.2-jar-with-dependencies.jar)
+[appjangle MicroSync 0.0.3](https://dl.dropbox.com/u/957046/onedb/mvn-releases/aj/apps/microsync/ajMicroSync/0.0.3/ajMicroSync-0.0.3-jar-with-dependencies.jar)
 
 Or grab the source from github:
 
 [appjangle MicroSync github repository](https://github.com/mxro/ajMicroSync)
+
+## Versions
+
+### New in 0.0.3
+
+- Synchronization will only be conducted for files, which are modified on the local disc.
+- Saving a login will not persist email and password any longer but only a session id.
+
+### New in 0.0.2
+
+- changed names of operations 
+- added `one.download` operation
+- added `one.ignoreNext` operation
 
 ## Usage
 
