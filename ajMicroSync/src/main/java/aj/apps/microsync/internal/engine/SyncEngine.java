@@ -70,11 +70,7 @@ public class SyncEngine {
 
 
         for (final String filePath : files) {
-            if (!cache.isModified(new File(filePath))) {
-                logService.note("  Skipped unchanged file: "+filePath);
-                latch.registerSuccess();
-                continue;
-            }
+            
             
             logService.note("  Loading file: " + filePath);
 
@@ -90,7 +86,7 @@ public class SyncEngine {
 
             final String fileClosed = file;
             logService.note("  Start processing file: " + filePath);
-            processText(file, getExtension(filePath), dataService, new WhenSyncComplete() {
+            processText(file, getExtension(filePath), dataService, cache.isModified(new File(filePath)),new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
@@ -122,12 +118,12 @@ public class SyncEngine {
 
     }
 
-    public static void processText(String text, String extension, DataService service, final WhenSyncComplete callback) {
+    public static void processText(String text, String extension, DataService service, final boolean skipUpload, final WhenSyncComplete callback) {
         final Pattern p = Pattern.compile(commentRegex);
 
         final Matcher matcher = p.matcher(text);
 
-        new DoOperationsProcess(service, text, extension, matcher, new OperationCallback() {
+        new DoOperationsProcess(service, text, extension, matcher, skipUpload, new OperationCallback() {
 
             @Override
             public void onSuccess(final String newFile) {
@@ -153,6 +149,7 @@ public class SyncEngine {
 
         final Matcher matcher;
         String file;
+        boolean skipUpload;
         OperationCallback callback;
         List<Replace> replacements;
         int lastCommentEnd = -1;
@@ -255,6 +252,12 @@ public class SyncEngine {
 
                 if (operation == Operation.UPLOAD) {
 
+                    if (skipUpload) {
+                        operation = Operation.NONE;
+                        next();
+                        return;
+                    }
+                    
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
@@ -354,22 +357,20 @@ public class SyncEngine {
                 }
 
 
-
-
-
             }
 
             next();
 
         }
 
-        public DoOperationsProcess(final DataService service, final String file, String extension, final Matcher matcher,
+        public DoOperationsProcess(final DataService service, final String file, String extension, final Matcher matcher, final boolean skipUpload,
                 final OperationCallback callback) {
             super();
             this.dataService = service;
             this.file = file;
             this.extension = extension;
             this.matcher = matcher;
+            this.skipUpload = skipUpload;
             this.callback = callback;
             this.replacements = new ArrayList<Replace>();
         }
