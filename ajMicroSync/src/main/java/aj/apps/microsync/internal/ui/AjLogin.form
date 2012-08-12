@@ -125,7 +125,7 @@
         <Component class="javax.swing.JCheckBox" name="saveLoginData">
           <Properties>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Save Login Data"/>
+            <Property name="text" type="java.lang.String" value="Save Session"/>
           </Properties>
         </Component>
       </SubComponents>

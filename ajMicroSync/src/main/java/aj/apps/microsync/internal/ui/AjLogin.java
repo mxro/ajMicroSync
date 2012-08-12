@@ -20,6 +20,7 @@ import one.core.dsl.callbacks.WhenShutdown;
 import one.core.dsl.callbacks.WhenUserLoggedIn;
 import one.core.dsl.callbacks.results.WithChallengedContext;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
+import one.core.dsl.grammars.LoginWithSessionIdParameters;
 import one.core.dsl.grammars.LoginWithUserDetailsParameters;
 
 /**
@@ -27,11 +28,12 @@ import one.core.dsl.grammars.LoginWithUserDetailsParameters;
  * @author mroh004
  */
 public class AjLogin extends javax.swing.JPanel {
-
+    
     private final WhenLoggedIn callback;
-
+    private LogginInPanel lp;
+    
     public interface WhenLoggedIn {
-
+        
         public void thenDo(OneClient client, Component loginForm, WithUserRegisteredResult wurr);
     }
 
@@ -44,19 +46,10 @@ public class AjLogin extends javax.swing.JPanel {
         
         Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
         
-        final String email = prefs.get("email", null);
-        final String password = prefs.get("password", null);
+        final String sessionId = prefs.get("sessionId", null);
         
-        if (email != null) {
-            emailField.setText(email);
-        }
-        
-        if (password != null) {
-            passwordFiled.setText(password);
-        }
-        
-        if (email != null && password != null) {
-            loginButtonActionPerformed(null);
+        if (sessionId != null) {
+            loginWithSessionId(sessionId);
         }
     }
 
@@ -102,7 +95,7 @@ public class AjLogin extends javax.swing.JPanel {
         });
 
         saveLoginData.setSelected(true);
-        saveLoginData.setText("Save Login Data");
+        saveLoginData.setText("Save Session");
 
         javax.swing.GroupLayout detailsPanelLayout = new javax.swing.GroupLayout(detailsPanel);
         detailsPanel.setLayout(detailsPanelLayout);
@@ -159,51 +152,44 @@ public class AjLogin extends javax.swing.JPanel {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         JOptionPane.showMessageDialog(null, "You cannot use this application without signing in to appjangle.\nThis application will now close.");
-
+        
         System.exit(0);
     }//GEN-LAST:event_jButton2ActionPerformed
-
+    
     private void showDetailsPanel() {
         this.add(this.detailsPanel, BorderLayout.CENTER);
-       this.detailsPanel.setVisible(true);
+        this.detailsPanel.setVisible(true);
         this.validate();
         this.revalidate();
-                
+        
     }
     
-    private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-        
-        if (saveLoginData.isSelected()) {
-             Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
-            
-           prefs.put("email", emailField.getText());
-            prefs.put("password", String.valueOf(passwordFiled.getPassword()));
-        }
+    private void updateUiForLogin() {
         this.remove(this.detailsPanel);
-
-       final LogginInPanel lp = new LogginInPanel();
+        
+        lp = new LogginInPanel();
         this.add(lp, BorderLayout.CENTER);
         lp.setVisible(true);
-
+        
         lp.validate();
         lp.revalidate();
-
+        
         this.validate();
         this.revalidate();
-
+    }
+    
+    private void loginWithSessionId(final String sessionId) {
+        
+        updateUiForLogin();
         
         final CoreDsl dsl = OneJre.init();
         
         final OneClient c = dsl.createClient();
         
-        dsl.loginUser(new LoginWithUserDetailsParameters() {
+        dsl.loginUser(new LoginWithSessionIdParameters() {
 
-            public String getEmail() {
-                return emailField.getText();
-            }
-
-            public String getPassword() {
-                return String.valueOf(passwordFiled.getPassword());
+            public String getSessionToken() {
+                return sessionId;
             }
 
             public String getApplicationNodeUri() {
@@ -219,43 +205,91 @@ public class AjLogin extends javax.swing.JPanel {
             }
 
             public WhenUserLoggedIn getCallback() {
-               return new WhenUserLoggedIn() {
-
+               return createLoggedInCallback(c);
+            }
+        });
+        
+    }
+    
+    private WhenUserLoggedIn createLoggedInCallback(final OneClient c) {
+            return new WhenUserLoggedIn() {
+                    
                     public void thenDo(WithUserRegisteredResult wurr) {
-                       remove(lp);
+                        if (saveLoginData.isSelected()) {
+                            Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
+                            
+                            prefs.put("sessionId", wurr.sessionToken());
+                            
+                        }
+                        
+                        remove(lp);
                         showDetailsPanel();
                         
                         callback.thenDo(c, AjLogin.this, wurr);
                     }
-
+                    
                     public void onChallenge(WithChallengedContext wcc) {
                         JOptionPane.showMessageDialog(null, "Unexpected challenge received.");
                         remove(lp);
                         showDetailsPanel();
                     }
-
+                    
                     public void onInvalidDetails() {
-                        JOptionPane.showMessageDialog(null, "Invalid username and/or password.");
+                        JOptionPane.showMessageDialog(null, "Invalid username/password or session expired.");
                         remove(lp);
                         showDetailsPanel();
                     }
-
+                    
                     public void onNotRegisteredForApplication() {
-                       JOptionPane.showMessageDialog(null, "User is not registered for application.");
+                        JOptionPane.showMessageDialog(null, "User is not registered for application.");
                         remove(lp);
                         showDetailsPanel();
                     }
-
+                    
                     public void onFailure(Throwable thrwbl) {
-                       JOptionPane.showMessageDialog(null, "Unexpected error: "+thrwbl);
+                        JOptionPane.showMessageDialog(null, "Unexpected error: " + thrwbl);
                         remove(lp);
                         showDetailsPanel();
                     }
                 };
+    }
+    
+    private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
+
+        updateUiForLogin();
+        
+        final CoreDsl dsl = OneJre.init();
+        
+        final OneClient c = dsl.createClient();
+        
+        dsl.loginUser(new LoginWithUserDetailsParameters() {
+            
+            public String getEmail() {
+                return emailField.getText();
+            }
+            
+            public String getPassword() {
+                return String.valueOf(passwordFiled.getPassword());
+            }
+            
+            public String getApplicationNodeUri() {
+                return "https://u1.linnk.it/0fs7dr/Apps1/appjangle";
+            }
+            
+            public String getApplicationNodeSecret() {
+                return "";
+            }
+            
+            public OneClient getClient() {
+                return c;
+            }
+            
+            public WhenUserLoggedIn getCallback() {
+                return createLoggedInCallback(c);
             }
         });
-
-
+       
+        
     }//GEN-LAST:event_loginButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel detailsPanel;
