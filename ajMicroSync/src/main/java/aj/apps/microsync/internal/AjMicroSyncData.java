@@ -243,9 +243,6 @@ public class AjMicroSyncData implements DataService {
                                     }
                                 });
 
-
-
-
                             }
 
                             @Override
