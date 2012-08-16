@@ -30,7 +30,7 @@ public class FileCache {
 
         long lastValue = lastModified.get(file.getAbsolutePath());
 
-        if (file.lastModified() <= lastValue) {
+        if (file.lastModified() == lastValue) {
             return false;
         }
 

@@ -4,6 +4,8 @@
  */
 package aj.apps.microsync.internal;
 
+import one.common.OneCommon;
+import one.common.extend.OneExtend;
 import one.core.domain.OneClient;
 import one.core.dsl.CoreDsl;
 import one.core.dsl.callbacks.WhenCommitted;
@@ -105,7 +107,6 @@ public class AjMicroSyncData implements DataService {
     @Override
     public void createNewNode(final String value, final String title, final String extension, final boolean isPublic,  final WhenNewNodeCreated callback) {
 
-
         assertAjFileSyncDataNode(new WhenSyncDataNodeAsserted() {
 
             public void thenDo(OneNode syncDataNode) {
@@ -138,8 +139,6 @@ public class AjMicroSyncData implements DataService {
                             @Override
                             public void thenDo(WithCommittedResult wcr) {
                                callback.thenDo(wor.node());
-                               
-                               
                             }
                         });
                         
@@ -165,7 +164,7 @@ public class AjMicroSyncData implements DataService {
     public void downloadChanges(final String localValue, String nodeUri, final WhenChangesDownloaded callback) {
        final CoreDsl dsl = client.one();
 
-        dsl.load(nodeUri).in(client).and(new WhenLoaded() {
+        dsl.reload(nodeUri).in(client).and(new WhenLoaded() {
 
             @Override
             public void thenDo(WithLoadResult<Object> wlr) {
@@ -273,45 +272,47 @@ public class AjMicroSyncData implements DataService {
 
     private void assertChild(final OneNode forNode, final String childPath, final WhenLoaded callback) {
 
-        final CoreDsl dsl = client.one();
+        //final CoreDsl dsl = client.one();
 
-        dsl.load(forNode.getId() + "/" + childPath).in(client).and(new WhenLoaded() {
-
-            @Override
-            public void thenDo(WithLoadResult<Object> wlr) {
-                callback.thenDo(wlr);
-            }
-
-            @Override
-            public void onUndefined(WithUndefinedContext context) {
-
-                dsl.appendSafe(childPath).to(forNode).atAddress("./" + childPath).in(client).and(new WhenResponseFromServerReceived<OneValue<String>>() {
-
-                    @Override
-                    public void thenDo(WithOperationResult<OneValue<String>> wor) {
-
-                        callback.thenDo(new WithLoadResult<Object>(client, (OneTypedReference<Object>) dsl.reference(wor.node().getId())));
-
-                    }
-
-                    @Override
-                    public void onImpossible(WithImpossibleContext context) {
-                        assertChild(forNode, childPath, callback);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        callback.onFailure(t);
-                    }
-                });
-
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                callback.onFailure(t);
-            }
-        });
+        OneExtend.assertChild(client, forNode, childPath, callback);
+        
+//        dsl.load(forNode.getId() + "/" + childPath).in(client).and(new WhenLoaded() {
+//
+//            @Override
+//            public void thenDo(WithLoadResult<Object> wlr) {
+//                callback.thenDo(wlr);
+//            }
+//
+//            @Override
+//            public void onUndefined(WithUndefinedContext context) {
+//
+//                dsl.appendSafe(childPath).to(forNode).atAddress("./" + childPath).in(client).and(new WhenResponseFromServerReceived<OneValue<String>>() {
+//
+//                    @Override
+//                    public void thenDo(WithOperationResult<OneValue<String>> wor) {
+//
+//                        callback.thenDo(new WithLoadResult<Object>(client, (OneTypedReference<Object>) dsl.reference(wor.node().getId())));
+//
+//                    }
+//
+//                    @Override
+//                    public void onImpossible(WithImpossibleContext context) {
+//                        assertChild(forNode, childPath, callback);
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Throwable t) {
+//                        callback.onFailure(t);
+//                    }
+//                });
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Throwable t) {
+//                callback.onFailure(t);
+//            }
+//        });
 
 
     }

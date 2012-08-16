@@ -86,7 +86,7 @@ public class SyncEngine {
 
             final String fileClosed = file;
             logService.note("  Start processing file: " + filePath);
-            processText(file, getExtension(filePath), dataService, cache.isModified(new File(filePath)),new WhenSyncComplete() {
+            processText(file, getExtension(filePath), dataService, !cache.isModified(new File(filePath)),new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
@@ -128,14 +128,12 @@ public class SyncEngine {
             @Override
             public void onSuccess(final String newFile) {
                 callback.onSuccess(newFile);
-                //System.out.println("all done");
-                //System.out.println("file: ");
-                // System.out.println(newFile);
+               
             }
         }).start();
     }
 
-    private final static String getExtension(String path) {
+    private static String getExtension(String path) {
         final int idx = path.lastIndexOf(".");
         return path.substring(idx + 1);
     }
@@ -167,13 +165,10 @@ public class SyncEngine {
 
         protected void next() {
             if (!matcher.find()) {
-
                 callback.onSuccess(performReplacements(file, replacements));
 
                 return;
             }
-
-
 
             final int commentStart = matcher.start();
             final int commentEnd = matcher.end();

@@ -107,6 +107,7 @@ public class SyncPanel extends javax.swing.JPanel {
 
             } catch (Exception e) {
                 logService.note(e.getMessage());
+                latch.registerFail(e);
             }
 
         }
