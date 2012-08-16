@@ -24,7 +24,7 @@ public interface DataService {
     public void createNewNode(final String value, final String title, final String extension, boolean isPublic,final WhenNewNodeCreated callback);
 
     public interface WhenChangesUploaded {
-        public void thenDo();
+        public void thenDo(boolean changed);
         
         public void onFailure(Throwable t);
     }

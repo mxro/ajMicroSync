@@ -72,7 +72,7 @@ public class SyncEngine {
         for (final String filePath : files) {
             
             
-            logService.note("  Loading file: " + filePath);
+            //logService.note("  Loading file: " + filePath);
 
             final FileInputStream fis = new FileInputStream(new File(
                     filePath));
@@ -85,13 +85,13 @@ public class SyncEngine {
             fis.close();
 
             final String fileClosed = file;
-            logService.note("  Start processing file: " + filePath);
-            processText(file, getExtension(filePath), dataService, !cache.isModified(new File(filePath)),new WhenSyncComplete() {
+            //logService.note("  Start processing file: " + filePath);
+            processText(file, getExtension(filePath), dataService, logService, !cache.isModified(new File(filePath)),new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
                     if (!text.equals(fileClosed)) {
-                        logService.note("  Writing file: " + filePath);
+                        logService.note("  Writing changed file: " + filePath);
                         try {
                             FileOutputStream fos = new FileOutputStream(new File(filePath));
 
@@ -104,7 +104,7 @@ public class SyncEngine {
                             return;
                         }
                     }
-                    logService.note("  Processing completed for file: " + filePath);
+                    // logService.note("  Processing completed for file: " + filePath);
                     latch.registerSuccess();
                 }
 
@@ -118,12 +118,12 @@ public class SyncEngine {
 
     }
 
-    public static void processText(String text, String extension, DataService service, final boolean skipUpload, final WhenSyncComplete callback) {
+    public static void processText(String text, String extension, DataService dataService, LogService logService, final boolean skipUpload, final WhenSyncComplete callback) {
         final Pattern p = Pattern.compile(commentRegex);
 
         final Matcher matcher = p.matcher(text);
 
-        new DoOperationsProcess(service, text, extension, matcher, skipUpload, new OperationCallback() {
+        new DoOperationsProcess(dataService, logService, text, extension, matcher, skipUpload, new OperationCallback() {
 
             @Override
             public void onSuccess(final String newFile) {
@@ -155,6 +155,7 @@ public class SyncEngine {
         String parameter = "";
         Operation operation = Operation.NONE;
         private final DataService dataService;
+        private final LogService logService;
         private final String extension;
 
         public void start() {
@@ -228,6 +229,7 @@ public class SyncEngine {
                                         replacement = "// " + replacement;
                                     }
                                     replacements.add(new Replace(lastCommentStart, lastCommentEnd, replacement));
+                                    logService.note("Create new document: "+newNode.getId());
                                     next();
                                 }
 
@@ -258,7 +260,10 @@ public class SyncEngine {
 
                     dataService.uploadChanges(enclosedWithinComments, parameter, new DataService.WhenChangesUploaded() {
 
-                        public void thenDo() {
+                        public void thenDo(boolean changed) {
+                            if (changed) {
+                                logService.note("Updated node for: "+file);
+                            }
                             operation = Operation.NONE;
 
                             next();
@@ -358,10 +363,11 @@ public class SyncEngine {
 
         }
 
-        public DoOperationsProcess(final DataService service, final String file, String extension, final Matcher matcher, final boolean skipUpload,
+        public DoOperationsProcess(final DataService service, LogService logService, final String file, String extension, final Matcher matcher, final boolean skipUpload,
                 final OperationCallback callback) {
             super();
             this.dataService = service;
+            this.logService = logService;
             this.file = file;
             this.extension = extension;
             this.matcher = matcher;

@@ -3,6 +3,7 @@ package aj.apps.microsync.tests;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.DataService.WhenChangesUploaded;
 import aj.apps.microsync.internal.DataService.WhenNewNodeCreated;
+import aj.apps.microsync.internal.LogService;
 import aj.apps.microsync.internal.engine.SyncEngine;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -36,7 +37,7 @@ public class AppTest
 
     public void testUploadOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), false,new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 //System.out.println(text);
@@ -51,7 +52,7 @@ public class AppTest
     
     public void testSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DummyDataService(), false,new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                
@@ -66,7 +67,7 @@ public class AppTest
     
     public void testSyncUploadAndSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.uploadNew newNode --> to create <!-- --> too", "txt", new DummyDataService(), false, new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.uploadNew newNode --> to create <!-- --> too", "txt", new DummyDataService(), new DummyLogService(),false, new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 //System.out.println(text);
@@ -83,7 +84,7 @@ public class AppTest
         OneJre.init();
         
         String baesText = "ignore<!-- one.download http://test.com/mynode -->download<!-- one.end -->ignore";
-        SyncEngine.processText(baesText, "txt", new DummyDataService(), false, new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText(baesText, "txt", new DummyDataService(), new DummyLogService(), false, new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->download+<!-- one.end -->ignore", text);
@@ -100,7 +101,7 @@ public class AppTest
         OneJre.init();
         
         String baesText = "ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end // <!-- one.end -->ignore";
-        SyncEngine.processText(baesText, "txt", new DummyDataService(), false, new SyncEngine.WhenSyncComplete() {
+        SyncEngine.processText(baesText, "txt", new DummyDataService(), new DummyLogService(), false, new SyncEngine.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                // System.out.println(text);
@@ -114,6 +115,14 @@ public class AppTest
         
     }
 
+    private static class DummyLogService implements LogService {
+
+        public void note(String text) {
+            // do nothing
+        }
+        
+    }
+    
     private static class DummyDataService implements DataService {
 
         public DummyDataService() {
@@ -133,7 +142,7 @@ public class AppTest
         
         public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
             
-            callback.thenDo();
+            callback.thenDo(true);
         }
 
         public void shutdown(WhenShutdown callback) {

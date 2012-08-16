@@ -55,7 +55,7 @@ public class AjMicroSyncData implements DataService {
                 String oldValue = (String) valueNode.getValue();
 
                 if (oldValue.equals(newValue)) {
-                    callback.thenDo();
+                    callback.thenDo(false);
                     return;
                 }
 
@@ -69,7 +69,7 @@ public class AjMicroSyncData implements DataService {
 
                                     @Override
                                     public void thenDo(WithVersionsClearedResult wvcr) {
-                                        callback.thenDo();
+                                        callback.thenDo(true);
                                     }
 
                                     @Override
