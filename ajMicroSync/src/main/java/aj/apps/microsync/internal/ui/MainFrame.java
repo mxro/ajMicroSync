@@ -12,6 +12,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import one.core.domain.OneClient;
 import one.core.dsl.callbacks.WhenLoaded;
+import one.core.dsl.callbacks.WhenShutdown;
 import one.core.dsl.callbacks.results.WithLoadResult;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
@@ -94,10 +95,12 @@ public class MainFrame extends javax.swing.JFrame {
                             public void thenDo(WithLoadResult<Object> wlr) {
                                
 
-                                destPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
+                                destPanel.add(new SyncPanel(client.one(), wurr), BorderLayout.CENTER);
 
                                 destPanel.validate();
                                 destPanel.revalidate();
+                                
+                                client.one().shutdown(client).and(WhenShutdown.DO_NOTHING);
                             }
 
                             @Override

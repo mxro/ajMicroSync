@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import one.client.jre.OneJre;
 import one.common.One;
+import one.core.dsl.callbacks.WhenShutdown;
 
 /**
  * Unit test for simple App.
@@ -133,6 +134,10 @@ public class AppTest
         public void uploadChanges(String enclosedWithinComments, String parameter, WhenChangesUploaded callback) {
             
             callback.thenDo();
+        }
+
+        public void shutdown(WhenShutdown callback) {
+           callback.thenDo();
         }
     }
 }

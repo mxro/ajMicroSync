@@ -5,9 +5,7 @@
 package aj.apps.microsync.internal.ui;
 
 import aj.apps.microsync.AjMicroSync;
-import aj.apps.microsync.internal.AjMicroSyncData;
-import aj.apps.microsync.internal.DataService;
-import aj.apps.microsync.internal.LogService;
+import aj.apps.microsync.internal.*;
 import aj.apps.microsync.internal.engine.FileCache;
 import aj.apps.microsync.internal.engine.SyncEngine;
 import java.awt.BorderLayout;
@@ -27,7 +25,9 @@ import javax.swing.DefaultListModel;
 import javax.swing.TransferHandler;
 import one.async.joiner.CallbackLatch;
 import one.core.domain.OneClient;
+import one.core.dsl.CoreDsl;
 import one.core.dsl.callbacks.WhenLoaded;
+import one.core.dsl.callbacks.WhenShutdown;
 import one.core.dsl.callbacks.results.WithLoadResult;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
@@ -38,7 +38,7 @@ import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 public class SyncPanel extends javax.swing.JPanel {
 
     WithUserRegisteredResult registrationInfos;
-    DataService dataService;
+    DataServiceFactory dataServiceFactory;
     FileCache fileCache = new FileCache();
     LogService logService = new LogService() {
 
@@ -66,6 +66,8 @@ public class SyncPanel extends javax.swing.JPanel {
         forceSyncButton.setEnabled(false);
         DefaultListModel model = (DefaultListModel) (directories.getModel());
 
+        final DataService dataService = dataServiceFactory.createDataService();
+        
         progressBar.setMaximum((model.getSize() * 2) + 1);
         progressBar.setValue(1);
         final CallbackLatch latch = new CallbackLatch(model.getSize()) {
@@ -73,8 +75,15 @@ public class SyncPanel extends javax.swing.JPanel {
             @Override
             public void onCompleted() {
                 progressBar.setValue(0);
-                forceSyncButton.setEnabled(true);
+                dataService.shutdown(new WhenShutdown() {
+
+                    @Override
+                    public void thenDo() {
+                        forceSyncButton.setEnabled(true);
                 syncing = false;
+                    }
+                });
+                
             }
 
             @Override
@@ -118,13 +127,13 @@ public class SyncPanel extends javax.swing.JPanel {
     /**
      * Creates new form SyncPanel
      */
-    public SyncPanel(OneClient client, WithUserRegisteredResult wurr) {
+    public SyncPanel(CoreDsl dsl, WithUserRegisteredResult wurr) {
         this.registrationInfos = wurr;
         initComponents();
 
         restoreSelectedDirsFromPrefs();
 
-        dataService = new AjMicroSyncData(client, wurr);
+        dataServiceFactory = new AjDataServiceFactory(dsl, wurr);
 
         this.directories.setDragEnabled(true);
 
@@ -416,10 +425,12 @@ public class SyncPanel extends javax.swing.JPanel {
                     public void thenDo(WithLoadResult<Object> wlr) {
 
 
-                        destPanel.add(new SyncPanel(client, wurr), BorderLayout.CENTER);
+                        destPanel.add(new SyncPanel(client.one(), wurr), BorderLayout.CENTER);
 
                         destPanel.validate();
                         // destPanel.revalidate();
+                        
+                        client.one().shutdown(client).and(WhenShutdown.DO_NOTHING);
                     }
 
                     @Override

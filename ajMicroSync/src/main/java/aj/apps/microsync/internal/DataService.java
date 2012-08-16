@@ -4,6 +4,7 @@
  */
 package aj.apps.microsync.internal;
 
+import one.core.dsl.callbacks.WhenShutdown;
 import one.core.nodes.OneNode;
 
 /**
@@ -42,5 +43,7 @@ public interface DataService {
     }
     
     public void downloadChanges(String value, String nodeUri, WhenChangesDownloaded callback);
+    
+    public void shutdown(WhenShutdown callback);
     
 }

@@ -8,10 +8,7 @@ import one.common.OneCommon;
 import one.common.extend.OneExtend;
 import one.core.domain.OneClient;
 import one.core.dsl.CoreDsl;
-import one.core.dsl.callbacks.WhenCommitted;
-import one.core.dsl.callbacks.WhenLoaded;
-import one.core.dsl.callbacks.WhenResponseFromServerReceived;
-import one.core.dsl.callbacks.WhenVersionsCleared;
+import one.core.dsl.callbacks.*;
 import one.core.dsl.callbacks.results.*;
 import one.core.nodes.OneNode;
 import one.core.nodes.OneTypedReference;
@@ -201,6 +198,10 @@ public class AjMicroSyncData implements DataService {
         });
         
         
+    }
+
+    public void shutdown(WhenShutdown callback) {
+        client.one().shutdown(client).and(callback);
     }
 
     private interface WhenSyncDataNodeAsserted {
