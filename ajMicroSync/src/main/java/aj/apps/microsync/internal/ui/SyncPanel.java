@@ -64,11 +64,12 @@ public class SyncPanel extends javax.swing.JPanel {
         syncing = true;
 
         forceSyncButton.setEnabled(false);
-        DefaultListModel model = (DefaultListModel) (directories.getModel());
+        final DefaultListModel model = (DefaultListModel) (directories.getModel());
 
-        final DataService dataService = dataServiceFactory.createDataService();
-        
-        progressBar.setMaximum((model.getSize() * 2) + 1);
+        dataServiceFactory.createDataService(new DataServiceFactory.WhenDataServiceCreated() {
+
+            public void thenDo(final DataService dataService) {
+               progressBar.setMaximum((model.getSize() * 2) + 1);
         progressBar.setValue(1);
         final CallbackLatch latch = new CallbackLatch(model.getSize()) {
 
@@ -120,6 +121,15 @@ public class SyncPanel extends javax.swing.JPanel {
             }
 
         }
+            }
+
+            public void onFailure(Throwable t) {
+               logService.note(t.getMessage());
+               throw new RuntimeException(t);
+            }
+        });
+        
+        
 
 
     }

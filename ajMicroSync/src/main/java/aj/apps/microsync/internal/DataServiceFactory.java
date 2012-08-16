@@ -10,6 +10,11 @@ package aj.apps.microsync.internal;
  */
 public interface DataServiceFactory {
     
-    public DataService createDataService();
+    public interface WhenDataServiceCreated {
+        public void thenDo(DataService service);
+        public void onFailure(Throwable t);
+    }
+    
+    public void createDataService(WhenDataServiceCreated callback);
     
 }

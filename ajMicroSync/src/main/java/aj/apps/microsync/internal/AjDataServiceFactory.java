@@ -6,6 +6,8 @@ package aj.apps.microsync.internal;
 
 import one.core.domain.OneClient;
 import one.core.dsl.CoreDsl;
+import one.core.dsl.callbacks.WhenLoaded;
+import one.core.dsl.callbacks.results.WithLoadResult;
 import one.core.dsl.callbacks.results.WithUserRegisteredResult;
 
 /**
@@ -14,13 +16,21 @@ import one.core.dsl.callbacks.results.WithUserRegisteredResult;
  */
 public class AjDataServiceFactory implements DataServiceFactory {
 
-    
     CoreDsl dsl;
     WithUserRegisteredResult wurr;
     
-    public DataService createDataService() {
+    public void createDataService(final WhenDataServiceCreated callback) {
+        final OneClient client = dsl.createClient();
         
-        return new AjMicroSyncData(dsl.createClient(), wurr);
+        dsl.load(wurr.userNodeUri()).withSecret(wurr.userNodeSecret()).in(client).and(new WhenLoaded() {
+
+            @Override
+            public void thenDo(WithLoadResult<Object> wlr) {
+                callback.thenDo(new AjMicroSyncData(client, wurr));
+            }
+        });
+        
+       
     }
 
     public AjDataServiceFactory(CoreDsl dsl, WithUserRegisteredResult wurr) {
