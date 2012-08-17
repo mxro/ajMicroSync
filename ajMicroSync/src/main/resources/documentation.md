@@ -8,13 +8,24 @@ appjangle MicroSync is a Java Swing application built on the [appjangle](http://
 
 You can download the latest executable below:
 
-[appjangle MicroSync 0.0.3](https://dl.dropbox.com/u/957046/onedb/mvn-releases/aj/apps/microsync/ajMicroSync/0.0.3/ajMicroSync-0.0.3-jar-with-dependencies.jar)
+[appjangle MicroSync 0.0.4](https://dl.dropbox.com/u/957046/onedb/mvn-releases/aj/apps/microsync/ajMicroSync/0.0.4/ajMicroSync-0.0.4-jar-with-dependencies.jar)
 
 Or grab the source from github:
 
 [appjangle MicroSync github repository](https://github.com/mxro/ajMicroSync)
 
 ## Changelog
+
+[To Do](http://slicnet.com/mxrogm/mxrogm/apps/edit/docs/3/doc)
+
+### New in 0.0.4
+
+- Fixed a bug that only _un_modified nodes would be uploaded
+- Improved stability by creating a new client context of each synchronization session
+- Improved stability of regular expression evaluation (there was an infinite loop 
+when there are comments with unmatched ends, see 
+[Regular Expression to Find HTML Comments in Java](http://maxrohde.com/2012/08/17/regular-expression-to-find-html-comments-in-java/))
+- made logging less verbose and more expressive
 
 ### New in 0.0.3
 
