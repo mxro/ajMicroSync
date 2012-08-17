@@ -14,9 +14,7 @@ import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -244,13 +242,14 @@ public class SyncPanel extends javax.swing.JPanel {
         progressBar = new javax.swing.JProgressBar();
         jCheckBox1 = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
+        checkFilesButton = new javax.swing.JButton();
 
         jLabel1.setText("Monitored Files and Directories:");
 
         directories.setModel(new DefaultListModel());
         jScrollPane1.setViewportView(directories);
 
-        removeButton.setText("Remove");
+        removeButton.setText("Remove File");
         removeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeButtonActionPerformed(evt);
@@ -290,7 +289,7 @@ public class SyncPanel extends javax.swing.JPanel {
                 .addComponent(forceSyncButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCheckBox1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -312,6 +311,13 @@ public class SyncPanel extends javax.swing.JPanel {
             }
         });
 
+        checkFilesButton.setText("Check Files");
+        checkFilesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkFilesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -325,9 +331,10 @@ public class SyncPanel extends javax.swing.JPanel {
                             .addComponent(jScrollPane1)
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(checkFilesButton)
+                                .addGap(18, 18, 18)
                                 .addComponent(jLabel3)
-                                .addGap(35, 35, 35)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(removeButton)))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
@@ -351,7 +358,8 @@ public class SyncPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(removeButton)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(checkFilesButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -455,7 +463,35 @@ public class SyncPanel extends javax.swing.JPanel {
         parent.validate();
 
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void doCheckFiles() {
+        logService.note("Checking registered files ("+new Date()+")");
+        final DefaultListModel model = (DefaultListModel) (directories.getModel());
+        
+        final List<Integer> toClear = new LinkedList();
+        for (int i = 0; i <= model.getSize() - 1; i++) {
+            final String filePath = model.get(i).toString();
+            
+            if (!new File(filePath).exists()) {
+                toClear.add(i);
+            }
+        }
+        Collections.reverse(toClear);
+        for (Integer idxToDelete : toClear ) {
+            logService.note("  Removed non existing file: "+model.get(idxToDelete).toString());
+            model.remove(idxToDelete);
+            
+        }
+        directories.revalidate();
+         saveSelectedDirsToPrefs();
+    }
+    
+    private void checkFilesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFilesButtonActionPerformed
+        doCheckFiles();
+    }//GEN-LAST:event_checkFilesButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton checkFilesButton;
     private javax.swing.JList directories;
     private javax.swing.JButton forceSyncButton;
     private javax.swing.JButton jButton1;
