@@ -4,7 +4,6 @@
  */
 package aj.apps.microsync.internal.engine;
 
-import aj.apps.microsync.internal.AjMicroSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
 import java.io.File;
@@ -17,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import one.async.joiner.CallbackLatch;
 import one.core.nodes.OneNode;
-import one.utils.OneUtils;
 
 /**
  *
