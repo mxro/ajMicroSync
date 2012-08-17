@@ -4,6 +4,7 @@
  */
 package aj.apps.microsync.internal.engine;
 
+import aj.apps.microsync.internal.AjMicroSyncData;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
 import java.io.File;
