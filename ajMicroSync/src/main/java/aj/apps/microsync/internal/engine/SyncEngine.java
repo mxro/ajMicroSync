@@ -99,8 +99,6 @@ public class SyncEngine {
 
                 public void onSuccess(String text) {
 
-                    System.out.println("Text Processed Successfully " + filePath);
-
                     if (!text.equals(fileClosed)) {
 
                         //logService.note("  Writing changed file: " + filePath);
