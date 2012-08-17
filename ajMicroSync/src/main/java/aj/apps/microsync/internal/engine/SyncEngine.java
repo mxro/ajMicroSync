@@ -91,7 +91,7 @@ public class SyncEngine {
                 public void onSuccess(String text) {
 
                     if (!text.equals(fileClosed)) {
-                        logService.note("  Writing changed file: " + filePath);
+                        //logService.note("  Writing changed file: " + filePath);
                         try {
                             FileOutputStream fos = new FileOutputStream(new File(filePath));
 
@@ -130,6 +130,10 @@ public class SyncEngine {
                 callback.onSuccess(newFile);
                
             }
+
+            public void onFailure(Throwable t) {
+                callback.onFailure(t);
+            }
         }).start();
     }
 
@@ -141,6 +145,8 @@ public class SyncEngine {
     public static interface OperationCallback {
 
         public void onSuccess(String newFile);
+        
+        public void onFailure(Throwable t);
     }
 
     public static class DoOperationsProcess {
@@ -159,15 +165,12 @@ public class SyncEngine {
         private final String extension;
 
         public void start() {
-
             next();
-
         }
 
         protected void next() {
             if (!matcher.find()) {
                 callback.onSuccess(performReplacements(file, replacements));
-
                 return;
             }
 
@@ -234,7 +237,7 @@ public class SyncEngine {
                                 }
 
                                 public void onFailure(Throwable t) {
-                                    t.printStackTrace();
+                                    logService.note("Exception reported: "+t.getMessage());
                                     operation = Operation.NONE;
 
                                     next();
@@ -262,7 +265,7 @@ public class SyncEngine {
 
                         public void thenDo(boolean changed) {
                             if (changed) {
-                                logService.note("Updated node for: "+file);
+                                logService.note("Updated node for: "+parameter);
                             }
                             operation = Operation.NONE;
 
@@ -270,7 +273,7 @@ public class SyncEngine {
                         }
 
                         public void onFailure(Throwable t) {
-                            t.printStackTrace();
+                           logService.note("Exception occured: "+t.getMessage());
                             operation = Operation.NONE;
 
                             next();
@@ -303,7 +306,7 @@ public class SyncEngine {
                         }
 
                         public void onFailure(Throwable t) {
-                            t.printStackTrace();
+                            logService.note("Exception occured: "+t.getMessage());
                             operation = Operation.NONE;
 
                             next();

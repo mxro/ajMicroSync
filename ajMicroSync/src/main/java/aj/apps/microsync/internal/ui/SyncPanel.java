@@ -394,7 +394,7 @@ public class SyncPanel extends javax.swing.JPanel {
             timer.scheduleAtFixedRate(syncTask, 10, 1000 * 20);
 
 
-            return;
+     
         } else {
             syncTask.cancel();
             timer.purge();
