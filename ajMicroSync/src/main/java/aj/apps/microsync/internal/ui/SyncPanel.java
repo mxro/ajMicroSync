@@ -89,9 +89,10 @@ public class SyncPanel extends javax.swing.JPanel {
 
             @Override
             public void onFailed(Throwable thrwbl) {
-                logService.note(thrwbl.getMessage());
+                logService.note("Exception occured: "+thrwbl.getMessage());
                 progressBar.setValue(0);
                 syncing = false;
+                throw new RuntimeException(thrwbl);
             }
         };
 
@@ -100,13 +101,13 @@ public class SyncPanel extends javax.swing.JPanel {
             final String elem = model.get(i).toString();
 
             try {
-                //logService.note("Processing entry: " + elem);
+                logService.note("Processing entry: " + elem);
                 progressBar.setValue(progressBar.getValue() + 1);
                 SyncEngine.processFile(new File((String) elem), dataService, logService, fileCache, new SyncEngine.WhenFilesProcessed() {
 
                     public void onSuccess() {
                         progressBar.setValue(progressBar.getValue() + 1);
-                        //logService.note("Entry processed: " + (String) elem);
+                        logService.note("Entry processed: " + (String) elem);
                         latch.registerSuccess();
                     }
 

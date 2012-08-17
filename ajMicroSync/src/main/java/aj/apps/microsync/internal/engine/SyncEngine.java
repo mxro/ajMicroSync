@@ -25,7 +25,19 @@ import one.utils.OneUtils;
  */
 public class SyncEngine {
 
+    static final String matchCStyleComment = "(// )?";
+    static final String matchCommentStart = "\\<![ \\r\\n\\t]*--";
+    static final String matchCommentEnd = "--[ \\r\\n\\t]*\\>";
+    
     static final String commentRegex = "(// )?\\<![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";
+  
+    static final String commentRegex2 = "(--([^\\-]|[\\r\\n]|-[^\\-])*";
+    
+    static final String commentStartRegex = matchCStyleComment+matchCommentStart;
+    
+    static final String commentEndRegex = matchCommentEnd;
+                
+    static final boolean ENABLE_LOG = false;
 
     public static enum Operation {
 
@@ -46,14 +58,13 @@ public class SyncEngine {
         public void onFailure(Throwable t);
     }
 
-    public static void processFile(final File inputFile, 
-            final DataService dataService, 
+    public static void processFile(final File inputFile,
+            final DataService dataService,
             final LogService logService,
             final FileCache cache,
             final WhenFilesProcessed callback) throws Exception {
 
         final List<String> files = getFilesRecursively(inputFile.getAbsoluteFile());
-
 
         final CallbackLatch latch = new CallbackLatch(files.size()) {
 
@@ -70,9 +81,8 @@ public class SyncEngine {
 
 
         for (final String filePath : files) {
-            
-            
-            //logService.note("  Loading file: " + filePath);
+
+            // logService.note("  Loading file: " + filePath);
 
             final FileInputStream fis = new FileInputStream(new File(
                     filePath));
@@ -86,11 +96,14 @@ public class SyncEngine {
 
             final String fileClosed = file;
             //logService.note("  Start processing file: " + filePath);
-            processText(file, getExtension(filePath), dataService, logService, !cache.isModified(new File(filePath)),new WhenSyncComplete() {
+            processText(file, getExtension(filePath), dataService, logService, !cache.isModified(new File(filePath)), new WhenSyncComplete() {
 
                 public void onSuccess(String text) {
 
+                    System.out.println("Text Processed Successfully " + filePath);
+
                     if (!text.equals(fileClosed)) {
+
                         //logService.note("  Writing changed file: " + filePath);
                         try {
                             FileOutputStream fos = new FileOutputStream(new File(filePath));
@@ -119,16 +132,14 @@ public class SyncEngine {
     }
 
     public static void processText(String text, String extension, DataService dataService, LogService logService, final boolean skipUpload, final WhenSyncComplete callback) {
-        final Pattern p = Pattern.compile(commentRegex);
+       
 
-        final Matcher matcher = p.matcher(text);
-
-        new DoOperationsProcess(dataService, logService, text, extension, matcher, skipUpload, new OperationCallback() {
+        new DoOperationsProcess(dataService, logService, text, extension, skipUpload, new OperationCallback() {
 
             @Override
             public void onSuccess(final String newFile) {
                 callback.onSuccess(newFile);
-               
+
             }
 
             public void onFailure(Throwable t) {
@@ -145,13 +156,14 @@ public class SyncEngine {
     public static interface OperationCallback {
 
         public void onSuccess(String newFile);
-        
+
         public void onFailure(Throwable t);
     }
 
     public static class DoOperationsProcess {
 
-        final Matcher matcher;
+        final Matcher commentStartMatcher;
+        final Matcher commentEndMatcher;
         String file;
         boolean skipUpload;
         OperationCallback callback;
@@ -169,22 +181,42 @@ public class SyncEngine {
         }
 
         protected void next() {
-            if (!matcher.find()) {
+
+            if (ENABLE_LOG) {
+                System.out.println("Seek next match.");
+                System.out.println("  Current Operation: " + operation);
+            }
+
+            
+           
+            
+            if (!commentStartMatcher.find()) {
                 callback.onSuccess(performReplacements(file, replacements));
                 return;
             }
 
-            final int commentStart = matcher.start();
-            final int commentEnd = matcher.end();
+             if (ENABLE_LOG) {
+                System.out.println("  Match found: "+commentStartMatcher.start()+" to "+commentStartMatcher.end());
+ 
+            }
+            
+            final int commentStart = commentStartMatcher.start();
+           
+            if (!this.commentEndMatcher.find(commentStart)) {
+                callback.onSuccess(performReplacements(file, replacements));
+                return;
+            }
+            
+            final int commentEnd = commentEndMatcher.end();
             final int commentContentStart;
 
-            //System.out.println("Matched: "+file.substring(matcher.start()));
-            if (!file.substring(matcher.start()).startsWith("// ")) {
-                commentContentStart = matcher.start() + 4;
+
+            if (!file.substring(commentStartMatcher.start()).startsWith("// ")) {
+                commentContentStart = commentStartMatcher.start() + 4;
             } else {
-                commentContentStart = matcher.start() + 7;
+                commentContentStart = commentStartMatcher.start() + 7;
             }
-            final int commentContentEnd = matcher.end() - 4;
+            final int commentContentEnd = commentEndMatcher.end() - 4;
 
             final String commentContent = file.substring(commentContentStart,
                     commentContentEnd);
@@ -197,7 +229,6 @@ public class SyncEngine {
             final String download = "one.download";
             final String ignore = "one.ignoreNext";
 
-
             final String content;
             if (commentContent.length() > 2) {
                 content = file.substring(
@@ -206,14 +237,24 @@ public class SyncEngine {
                 content = "";
             }
 
+            if (ENABLE_LOG) {
+                System.out.println("  Comment content: " + content.substring(0, Math.min(50, content.length())));
+                
+
+            }
+
+
             if (content.startsWith(ignore)) {
-                matcher.find();
+                commentStartMatcher.find();
                 next();
                 return;
             }
 
             if (content.startsWith(endMarker)) {
-
+                if (ENABLE_LOG) {
+                    System.out.println("  Hit end marker.");
+                }
+                
                 if (operation == Operation.UPLOADNEW || operation == Operation.UPLOADPUBLIC) {
 
                     final String enclosedWithinComments = file.substring(
@@ -232,12 +273,12 @@ public class SyncEngine {
                                         replacement = "// " + replacement;
                                     }
                                     replacements.add(new Replace(lastCommentStart, lastCommentEnd, replacement));
-                                    logService.note("Create new document: "+newNode.getId());
+                                    logService.note("Create new document: " + newNode.getId());
                                     next();
                                 }
 
                                 public void onFailure(Throwable t) {
-                                    logService.note("Exception reported: "+t.getMessage());
+                                    logService.note("Exception reported: " + t.getMessage());
                                     operation = Operation.NONE;
 
                                     next();
@@ -257,7 +298,7 @@ public class SyncEngine {
                         next();
                         return;
                     }
-                    
+
                     final String enclosedWithinComments = file.substring(
                             lastCommentEnd, commentStart);
 
@@ -265,7 +306,7 @@ public class SyncEngine {
 
                         public void thenDo(boolean changed) {
                             if (changed) {
-                                logService.note("Updated node for: "+parameter);
+                                logService.note("Updated node for: " + parameter);
                             }
                             operation = Operation.NONE;
 
@@ -273,7 +314,7 @@ public class SyncEngine {
                         }
 
                         public void onFailure(Throwable t) {
-                           logService.note("Exception occured: "+t.getMessage());
+                            logService.note("Exception occured: " + t.getMessage());
                             operation = Operation.NONE;
 
                             next();
@@ -306,7 +347,7 @@ public class SyncEngine {
                         }
 
                         public void onFailure(Throwable t) {
-                            logService.note("Exception occured: "+t.getMessage());
+                            logService.note("Exception occured: " + t.getMessage());
                             operation = Operation.NONE;
 
                             next();
@@ -315,6 +356,9 @@ public class SyncEngine {
                     return;
 
                 }
+
+
+
             }
 
             if (operation == Operation.NONE) {
@@ -359,21 +403,31 @@ public class SyncEngine {
                     return;
                 }
 
-
+                next();
+                return;
+            } else {
+                next();
+                return;
             }
 
-            next();
+            //throw new IllegalStateException("Case not handeled: "+content);
 
         }
 
-        public DoOperationsProcess(final DataService service, LogService logService, final String file, String extension, final Matcher matcher, final boolean skipUpload,
+        public DoOperationsProcess(final DataService service, LogService logService, final String file, String extension,  final boolean skipUpload,
                 final OperationCallback callback) {
             super();
             this.dataService = service;
             this.logService = logService;
             this.file = file;
             this.extension = extension;
-            this.matcher = matcher;
+            
+            final Pattern p = Pattern.compile(commentStartRegex);
+            this.commentStartMatcher = p.matcher(file);
+            
+            final Pattern p2 = Pattern.compile(commentEndRegex);
+           this.commentEndMatcher = p2.matcher(file);
+            
             this.skipUpload = skipUpload;
             this.callback = callback;
             this.replacements = new ArrayList<Replace>();

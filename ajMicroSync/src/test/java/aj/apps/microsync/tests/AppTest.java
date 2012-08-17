@@ -5,6 +5,7 @@ import aj.apps.microsync.internal.DataService.WhenChangesUploaded;
 import aj.apps.microsync.internal.DataService.WhenNewNodeCreated;
 import aj.apps.microsync.internal.LogService;
 import aj.apps.microsync.internal.engine.SyncEngine;
+import java.io.InputStream;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -12,6 +13,7 @@ import junit.framework.TestSuite;
 import one.client.jre.OneJre;
 import one.common.One;
 import one.core.dsl.callbacks.WhenShutdown;
+import one.utils.jre.OneUtilsJre;
 
 /**
  * Unit test for simple App.
@@ -35,6 +37,27 @@ public class AppTest
         return new TestSuite(AppTest.class);
     }
 
+    public void testExample1() throws Exception {
+        OneJre.init();
+        
+        InputStream is = this.getClass().getResourceAsStream("example_input1.txt");
+        
+        byte[] testData = OneUtilsJre.toByteArray(is);
+        
+        String testString = new String(testData);
+        
+        SyncEngine.processText(testString, ".html", new DummyDataService(), new DummyLogService(), false, new SyncEngine.WhenSyncComplete() {
+
+            public void onSuccess(String text) {
+                System.out.println("Successfully processed");
+            }
+
+            public void onFailure(Throwable t) {
+                throw new RuntimeException(t);
+            }
+        });
+    }
+    
     public void testUploadOperation() {
         OneJre.init();
         SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new SyncEngine.WhenSyncComplete() {
