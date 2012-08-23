@@ -5,8 +5,13 @@
 package aj.apps.microsync.internal.engine;
 
 import aj.apps.microsync.internal.AjMicroSyncData;
+import aj.apps.microsync.internal.AjMicroSyncData;
+import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.LogService;
+import aj.apps.microsync.internal.LogService;
+import aj.apps.microsync.internal.engine.FileCache;
+import aj.apps.microsync.internal.engine.FileCache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,7 +27,7 @@ import one.core.nodes.OneNode;
  *
  * @author Max
  */
-public class SyncEngine {
+public class ParseTextProcess {
 
     static final String matchCStyleComment = "(// )?";
     static final String matchCommentStart = "\\<![ \\r\\n\\t]*--";
@@ -43,11 +48,13 @@ public class SyncEngine {
         NONE, UPLOADNEW, UPLOADPUBLIC, UPLOAD, DOWNLOAD
     };
 
-    public interface WhenFilesProcessed {
-
-        public void onSuccess();
-
-        public void onFailure(Throwable t);
+    public interface ParseTextProcessParameters {
+        public String text();
+        public String extension();
+        public DataService dataService();
+        public LogService logService();
+        public  boolean skipUpload(); 
+        public WhenSyncComplete callback();
     }
 
     public interface WhenSyncComplete {
@@ -57,98 +64,14 @@ public class SyncEngine {
         public void onFailure(Throwable t);
     }
 
-    public static void processFile(final File inputFile,
-            final DataService dataService,
-            final LogService logService,
-            final FileCache cache,
-            final WhenFilesProcessed callback) throws Exception {
+    
 
-        final List<String> files = getFilesRecursively(inputFile.getAbsoluteFile());
-
-        final CallbackLatch latch = new CallbackLatch(files.size()) {
-
-            @Override
-            public void onCompleted() {
-                callback.onSuccess();
-            }
-
-            @Override
-            public void onFailed(Throwable thrwbl) {
-                callback.onFailure(thrwbl);
-            }
-        };
-
-
-        for (final String filePath : files) {
-
-            // logService.note("  Loading file: " + filePath);
-
-            final FileInputStream fis = new FileInputStream(new File(
-                    filePath));
-            final Scanner scanner = new Scanner(fis, "UTF-8");
-
-            String file = "";
-            while (scanner.hasNextLine()) {
-                file += scanner.nextLine() + "\n";
-            }
-            fis.close();
-
-            final String fileClosed = file;
-            //logService.note("  Start processing file: " + filePath);
-            processText(file, getExtension(filePath), dataService, logService, !cache.isModified(new File(filePath)), new WhenSyncComplete() {
-
-                public void onSuccess(String text) {
-
-                    if (!text.equals(fileClosed)) {
-
-                        //logService.note("  Writing changed file: " + filePath);
-                        try {
-                            FileOutputStream fos = new FileOutputStream(new File(filePath));
-
-                            byte[] data = text.getBytes("UTF-8");
-                            fos.write(data, 0, data.length);
-
-                            fos.close();
-                        } catch (Exception e) {
-                            latch.registerFail(e);
-                            return;
-                        }
-                    }
-                    // logService.note("  Processing completed for file: " + filePath);
-                    latch.registerSuccess();
-                }
-
-                public void onFailure(Throwable t) {
-                    latch.registerFail(t);
-                }
-            });
-
-
-        }
-
+    public static void processText(final ParseTextProcessParameters params) {
+      
+        new DoOperationsProcess(params).start();
     }
 
-    public static void processText(String text, String extension, DataService dataService, LogService logService, final boolean skipUpload, final WhenSyncComplete callback) {
-       
-
-        new DoOperationsProcess(dataService, logService, text, extension, skipUpload, new OperationCallback() {
-
-            @Override
-            public void onSuccess(final String newFile) {
-                callback.onSuccess(newFile);
-
-            }
-
-            public void onFailure(Throwable t) {
-                callback.onFailure(t);
-            }
-        }).start();
-    }
-
-    private static String getExtension(String path) {
-        final int idx = path.lastIndexOf(".");
-        return path.substring(idx + 1);
-    }
+    
 
     public static interface OperationCallback {
 
@@ -163,7 +86,7 @@ public class SyncEngine {
         final Matcher commentEndMatcher;
         String file;
         boolean skipUpload;
-        OperationCallback callback;
+        WhenSyncComplete callback;
         List<Replace> replacements;
         int lastCommentEnd = -1;
         int lastCommentStart = -1;
@@ -183,9 +106,6 @@ public class SyncEngine {
                 System.out.println("Seek next match.");
                 System.out.println("  Current Operation: " + operation);
             }
-
-            
-           
             
             if (!commentStartMatcher.find()) {
                 callback.onSuccess(performReplacements(file, replacements));
@@ -236,10 +156,8 @@ public class SyncEngine {
 
             if (ENABLE_LOG) {
                 System.out.println("  Comment content: " + content.substring(0, Math.min(50, content.length())));
-                
-
+          
             }
-
 
             if (content.startsWith(ignore)) {
                 commentStartMatcher.find();
@@ -411,13 +329,12 @@ public class SyncEngine {
 
         }
 
-        public DoOperationsProcess(final DataService service, LogService logService, final String file, String extension,  final boolean skipUpload,
-                final OperationCallback callback) {
+        public DoOperationsProcess(final ParseTextProcessParameters params) {
             super();
-            this.dataService = service;
-            this.logService = logService;
-            this.file = file;
-            this.extension = extension;
+            this.dataService = params.dataService();
+            this.logService = params.logService();
+            this.file = params.text();
+            this.extension = params.extension();
             
             final Pattern p = Pattern.compile(commentStartRegex);
             this.commentStartMatcher = p.matcher(file);
@@ -425,8 +342,8 @@ public class SyncEngine {
             final Pattern p2 = Pattern.compile(commentEndRegex);
            this.commentEndMatcher = p2.matcher(file);
             
-            this.skipUpload = skipUpload;
-            this.callback = callback;
+            this.skipUpload = params.skipUpload();
+            this.callback = params.callback();
             this.replacements = new ArrayList<Replace>();
         }
     }
@@ -456,24 +373,5 @@ public class SyncEngine {
         }
     }
 
-    public static List<String> getFilesRecursively(final File dir) {
-        final ArrayList<String> list = new ArrayList<String>(100);
-
-        if (dir.isFile()) {
-            list.add(dir.getAbsolutePath());
-            return list;
-        }
-
-        final File[] files = dir.listFiles();
-        if (files != null) {
-            for (final File f : files) {
-                if (f.isDirectory()) {
-                    list.addAll(getFilesRecursively(f));
-                } else {
-                    list.add(f.getAbsolutePath());
-                }
-            }
-        }
-        return list;
-    }
+    
 }

@@ -4,7 +4,7 @@ import aj.apps.microsync.internal.DataService;
 import aj.apps.microsync.internal.DataService.WhenChangesUploaded;
 import aj.apps.microsync.internal.DataService.WhenNewNodeCreated;
 import aj.apps.microsync.internal.LogService;
-import aj.apps.microsync.internal.engine.SyncEngine;
+import aj.apps.microsync.internal.engine.ParseTextProcess;
 import java.io.InputStream;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -46,7 +46,7 @@ public class AppTest
         
         String testString = new String(testData);
         
-        SyncEngine.processText(testString, ".html", new DummyDataService(), new DummyLogService(), false, new SyncEngine.WhenSyncComplete() {
+        ParseTextProcess.processText(testString, ".html", new DummyDataService(), new DummyLogService(), false, new ParseTextProcess.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 System.out.println("Successfully processed");
@@ -60,7 +60,7 @@ public class AppTest
     
     public void testUploadOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new SyncEngine.WhenSyncComplete() {
+        ParseTextProcess.processText("ignore <!-- one.createPublic mytest --> content <!-- one.end --> ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new ParseTextProcess.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 //System.out.println(text);
@@ -75,7 +75,7 @@ public class AppTest
     
     public void testSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new SyncEngine.WhenSyncComplete() {
+        ParseTextProcess.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore too", "txt", new DummyDataService(), new DummyLogService(), false,new ParseTextProcess.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                
@@ -90,7 +90,7 @@ public class AppTest
     
     public void testSyncUploadAndSyncOperation() {
         OneJre.init();
-        SyncEngine.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.uploadNew newNode --> to create <!-- --> too", "txt", new DummyDataService(), new DummyLogService(),false, new SyncEngine.WhenSyncComplete() {
+        ParseTextProcess.processText("ignore <!-- one.upload http://test.com/mynode --> some rather lengthy\n text. <!-- -->ignore<!-- one.uploadNew newNode --> to create <!-- --> too", "txt", new DummyDataService(), new DummyLogService(),false, new ParseTextProcess.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 //System.out.println(text);
@@ -107,7 +107,7 @@ public class AppTest
         OneJre.init();
         
         String baesText = "ignore<!-- one.download http://test.com/mynode -->download<!-- one.end -->ignore";
-        SyncEngine.processText(baesText, "txt", new DummyDataService(), new DummyLogService(), false, new SyncEngine.WhenSyncComplete() {
+        ParseTextProcess.processText(baesText, "txt", new DummyDataService(), new DummyLogService(), false, new ParseTextProcess.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                 Assert.assertEquals("ignore<!-- one.download http://test.com/mynode -->download+<!-- one.end -->ignore", text);
@@ -124,7 +124,7 @@ public class AppTest
         OneJre.init();
         
         String baesText = "ignore<!-- one.download http://test.com/mynode -->start<!-- one.ignoreNext --><!-- one.end -->end // <!-- one.end -->ignore";
-        SyncEngine.processText(baesText, "txt", new DummyDataService(), new DummyLogService(), false, new SyncEngine.WhenSyncComplete() {
+        ParseTextProcess.processText(baesText, "txt", new DummyDataService(), new DummyLogService(), false, new ParseTextProcess.WhenSyncComplete() {
 
             public void onSuccess(String text) {
                // System.out.println(text);

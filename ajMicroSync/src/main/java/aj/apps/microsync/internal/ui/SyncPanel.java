@@ -7,7 +7,8 @@ package aj.apps.microsync.internal.ui;
 import aj.apps.microsync.AjMicroSync;
 import aj.apps.microsync.internal.*;
 import aj.apps.microsync.internal.engine.FileCache;
-import aj.apps.microsync.internal.engine.SyncEngine;
+import aj.apps.microsync.internal.engine.ParseTextProcess;
+import aj.apps.microsync.internal.engine.ProcessFilesProcess;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -101,7 +102,7 @@ public class SyncPanel extends javax.swing.JPanel {
             try {
                // logService.note("Processing entry: " + elem);
                 progressBar.setValue(progressBar.getValue() + 1);
-                SyncEngine.processFile(new File((String) elem), dataService, logService, fileCache, new SyncEngine.WhenFilesProcessed() {
+                ProcessFilesProcess.processFile(new File((String) elem), dataService, logService, fileCache, new ProcessFilesProcess.WhenFilesProcessed() {
 
                     public void onSuccess() {
                         progressBar.setValue(progressBar.getValue() + 1);
