@@ -188,12 +188,12 @@ public class ParseTextProcess {
                                         replacement = "// " + replacement;
                                     }
                                     replacements.add(new Replace(lastCommentStart, lastCommentEnd, replacement));
-                                    logService.note("Create new document: " + newNode.getId());
+                                    logService.note("  Create new document: " + newNode.getId());
                                     next();
                                 }
 
                                 public void onFailure(Throwable t) {
-                                    logService.note("Exception reported: " + t.getMessage());
+                                    logService.note("  Exception reported: " + t.getMessage());
                                     operation = Operation.NONE;
 
                                     next();
@@ -221,7 +221,7 @@ public class ParseTextProcess {
 
                         public void thenDo(boolean changed) {
                             if (changed) {
-                                logService.note("Updated node for: " + parameter);
+                                logService.note("  Updated node for: " + parameter);
                             }
                             operation = Operation.NONE;
 
@@ -262,7 +262,7 @@ public class ParseTextProcess {
                         }
 
                         public void onFailure(Throwable t) {
-                            logService.note("Exception occured: " + t.getMessage());
+                            logService.note("  Exception occured: " + t.getMessage());
                             operation = Operation.NONE;
 
                             next();

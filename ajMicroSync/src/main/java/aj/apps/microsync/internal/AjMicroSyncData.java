@@ -102,7 +102,7 @@ public class AjMicroSyncData implements DataService {
     }
 
     @Override
-    public void createNewNode(final String value, final String title, final String extension, final boolean isPublic,  final WhenNewNodeCreated callback) {
+    public void createNewNode(final String value, final String title, final String extension, final boolean isPublic, final WhenNewNodeCreated callback) {
 
         assertAjFileSyncDataNode(new WhenSyncDataNodeAsserted() {
 
@@ -135,7 +135,8 @@ public class AjMicroSyncData implements DataService {
 
                             @Override
                             public void thenDo(WithCommittedResult wcr) {
-                               callback.thenDo(wor.node());
+                               
+                                callback.thenDo(wor.node());
                             }
                         });
                         

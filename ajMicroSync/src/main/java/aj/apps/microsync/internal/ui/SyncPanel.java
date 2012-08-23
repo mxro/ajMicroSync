@@ -16,6 +16,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -72,15 +73,20 @@ public class SyncPanel extends javax.swing.JPanel {
             public void thenDo(final DataService dataService) {
                 progressBar.setMaximum((model.getSize() * 2) + 1);
                 progressBar.setValue(1);
+                
+                final AtomicBoolean active = new AtomicBoolean(true);
+                 
                 final CallbackLatch latch = new CallbackLatch(model.getSize()) {
 
                     @Override
                     public void onCompleted() {
-                        progressBar.setValue(0);
+                        logService.note("  Winding down data service. "+new Date());
                         dataService.shutdown(new WhenShutdown() {
 
                             @Override
                             public void thenDo() {
+                                progressBar.setValue(0);
+                                active.set(false);
                                 logService.note("Finished Synchronization: " + new Date());
                                 forceSyncButton.setEnabled(true);
                                 syncing = false;
@@ -94,36 +100,67 @@ public class SyncPanel extends javax.swing.JPanel {
                         logService.note("  Exception occured: " + thrwbl.getMessage());
                         progressBar.setValue(0);
                         syncing = false;
+                        forceSyncButton.setEnabled(true);
                         throw new RuntimeException(thrwbl);
                     }
                 };
 
-                for (int i = 0; i <= model.getSize() - 1; i++) {
+              
+                
+                Thread syncThread = new Thread(new Runnable() {
 
-                    final String elem = model.get(i).toString();
+                    public void run() {
+                        for (int i = 0; i <= model.getSize() - 1; i++) {
 
-                    try {
+                            final String elem = model.get(i).toString();
 
-                        progressBar.setValue(progressBar.getValue() + 1);
-                        ProcessFilesProcess.processFile(new File((String) elem), dataService, logService, fileCache, new ProcessFilesProcess.WhenFilesProcessed() {
+                            try {
 
-                            public void onSuccess() {
                                 progressBar.setValue(progressBar.getValue() + 1);
+                                ProcessFilesProcess.processFile(new File((String) elem), dataService, logService, fileCache, new ProcessFilesProcess.WhenFilesProcessed() {
 
-                                latch.registerSuccess();
+                                    public void onSuccess() {
+                                        progressBar.setValue(progressBar.getValue() + 1);
+
+                                        latch.registerSuccess();
+                                    }
+
+                                    public void onFailure(Throwable t) {
+                                        latch.registerFail(t);
+                                    }
+                                });
+
+                            } catch (Exception e) {
+                                logService.note(e.getMessage());
+                                latch.registerFail(e);
                             }
 
-                            public void onFailure(Throwable t) {
-                                latch.registerFail(t);
-                            }
-                        });
-
-                    } catch (Exception e) {
-                        logService.note(e.getMessage());
-                        latch.registerFail(e);
+                        }
                     }
+                });
+                
+                Thread monitorSyncThread = new Thread(new Runnable() {
 
-                }
+                    public void run() {
+                        try {
+                            Thread.sleep(240 * 1000); // wait for 4 minutes
+                            
+                            if (active.get()) {
+                                logService.note("Error: Synchronization timeout "+new Date());
+                                progressBar.setValue(0);
+                                forceSyncButton.setEnabled(true);
+                                syncing = false;
+                            }
+                            
+                        } catch (InterruptedException ex) {
+                            logService.note("  Unexpected exception: "+ex);
+                        }
+                    }
+                });
+                
+                syncThread.start();
+                monitorSyncThread.start();
+                
             }
 
             public void onFailure(Throwable t) {
