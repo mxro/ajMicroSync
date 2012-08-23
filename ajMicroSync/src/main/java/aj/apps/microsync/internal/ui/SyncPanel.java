@@ -43,14 +43,18 @@ public class SyncPanel extends javax.swing.JPanel {
     LogService logService = new LogService() {
 
         public void note(String text) {
-
-            messages.setText(messages.getText() + "\n" + text);
+            
+            if (messages.getText().equals("")) {
+                 messages.setText(text);
+            } else {
+                messages.setText(messages.getText() + "\n" + text);
+            }
 
             if (messages.getText().length() > 10000) {
                 messages.setText(messages.getText().substring(0, 9999));
             }
 
-            messages.setCaretPosition(0);
+            messages.setCaretPosition(messages.getText().length()-1);
         }
     };
     private volatile boolean syncing = false;
