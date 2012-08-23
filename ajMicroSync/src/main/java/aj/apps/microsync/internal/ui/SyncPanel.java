@@ -43,7 +43,7 @@ public class SyncPanel extends javax.swing.JPanel {
 
         public void note(String text) {
 
-            messages.setText(text + "\n" + messages.getText());
+            messages.setText(messages.getText() + "\n" + text);
 
             if (messages.getText().length() > 10000) {
                 messages.setText(messages.getText().substring(0, 9999));
@@ -65,71 +65,74 @@ public class SyncPanel extends javax.swing.JPanel {
         forceSyncButton.setEnabled(false);
         final DefaultListModel model = (DefaultListModel) (directories.getModel());
 
+        logService.note("Start Synchronization: " + new Date());
+
         dataServiceFactory.createDataService(new DataServiceFactory.WhenDataServiceCreated() {
 
             public void thenDo(final DataService dataService) {
-               progressBar.setMaximum((model.getSize() * 2) + 1);
-        progressBar.setValue(1);
-        final CallbackLatch latch = new CallbackLatch(model.getSize()) {
-
-            @Override
-            public void onCompleted() {
-                progressBar.setValue(0);
-                dataService.shutdown(new WhenShutdown() {
+                progressBar.setMaximum((model.getSize() * 2) + 1);
+                progressBar.setValue(1);
+                final CallbackLatch latch = new CallbackLatch(model.getSize()) {
 
                     @Override
-                    public void thenDo() {
-                        forceSyncButton.setEnabled(true);
-                syncing = false;
+                    public void onCompleted() {
+                        progressBar.setValue(0);
+                        dataService.shutdown(new WhenShutdown() {
+
+                            @Override
+                            public void thenDo() {
+                                logService.note("Finished Synchronization: " + new Date());
+                                forceSyncButton.setEnabled(true);
+                                syncing = false;
+                            }
+                        });
+
                     }
-                });
-                
-            }
 
-            @Override
-            public void onFailed(Throwable thrwbl) {
-                logService.note("Exception occured: "+thrwbl.getMessage());
-                progressBar.setValue(0);
-                syncing = false;
-                throw new RuntimeException(thrwbl);
-            }
-        };
+                    @Override
+                    public void onFailed(Throwable thrwbl) {
+                        logService.note("  Exception occured: " + thrwbl.getMessage());
+                        progressBar.setValue(0);
+                        syncing = false;
+                        throw new RuntimeException(thrwbl);
+                    }
+                };
 
-        for (int i = 0; i <= model.getSize() - 1; i++) {
+                for (int i = 0; i <= model.getSize() - 1; i++) {
 
-            final String elem = model.get(i).toString();
+                    final String elem = model.get(i).toString();
 
-            try {
-               // logService.note("Processing entry: " + elem);
-                progressBar.setValue(progressBar.getValue() + 1);
-                ProcessFilesProcess.processFile(new File((String) elem), dataService, logService, fileCache, new ProcessFilesProcess.WhenFilesProcessed() {
+                    try {
 
-                    public void onSuccess() {
                         progressBar.setValue(progressBar.getValue() + 1);
-                        //logService.note("Entry processed: " + (String) elem);
-                        latch.registerSuccess();
+                        ProcessFilesProcess.processFile(new File((String) elem), dataService, logService, fileCache, new ProcessFilesProcess.WhenFilesProcessed() {
+
+                            public void onSuccess() {
+                                progressBar.setValue(progressBar.getValue() + 1);
+
+                                latch.registerSuccess();
+                            }
+
+                            public void onFailure(Throwable t) {
+                                latch.registerFail(t);
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        logService.note(e.getMessage());
+                        latch.registerFail(e);
                     }
 
-                    public void onFailure(Throwable t) {
-                        latch.registerFail(t);
-                    }
-                });
-
-            } catch (Exception e) {
-                logService.note(e.getMessage());
-                latch.registerFail(e);
-            }
-
-        }
+                }
             }
 
             public void onFailure(Throwable t) {
-               logService.note(t.getMessage());
-               throw new RuntimeException(t);
+                logService.note(t.getMessage());
+                throw new RuntimeException(t);
             }
         });
-        
-        
+
+
 
 
     }
@@ -404,7 +407,7 @@ public class SyncPanel extends javax.swing.JPanel {
             timer.scheduleAtFixedRate(syncTask, 10, 1000 * 20);
 
 
-     
+
         } else {
             syncTask.cancel();
             timer.purge();
@@ -420,7 +423,7 @@ public class SyncPanel extends javax.swing.JPanel {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Preferences prefs = Preferences.userNodeForPackage(AjMicroSync.class);
         prefs.remove("sessionId");
-       
+
         try {
             prefs.flush();
         } catch (BackingStoreException ex) {
@@ -449,7 +452,7 @@ public class SyncPanel extends javax.swing.JPanel {
 
                         destPanel.validate();
                         // destPanel.revalidate();
-                        
+
                         client.one().shutdown(client).and(WhenShutdown.DO_NOTHING);
                     }
 
@@ -466,31 +469,30 @@ public class SyncPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void doCheckFiles() {
-        logService.note("Checking registered files ("+new Date()+")");
+        logService.note("Checking registered files (" + new Date() + ")");
         final DefaultListModel model = (DefaultListModel) (directories.getModel());
-        
+
         final List<Integer> toClear = new LinkedList();
         for (int i = 0; i <= model.getSize() - 1; i++) {
             final String filePath = model.get(i).toString();
-            
+
             if (!new File(filePath).exists()) {
                 toClear.add(i);
             }
         }
         Collections.reverse(toClear);
-        for (Integer idxToDelete : toClear ) {
-            logService.note("  Removed non existing file: "+model.get(idxToDelete).toString());
+        for (Integer idxToDelete : toClear) {
+            logService.note("  Removed non existing file: " + model.get(idxToDelete).toString());
             model.remove(idxToDelete);
-            
+
         }
         directories.revalidate();
-         saveSelectedDirsToPrefs();
+        saveSelectedDirsToPrefs();
     }
-    
+
     private void checkFilesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkFilesButtonActionPerformed
         doCheckFiles();
     }//GEN-LAST:event_checkFilesButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton checkFilesButton;
     private javax.swing.JList directories;
