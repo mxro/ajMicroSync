@@ -43,18 +43,18 @@ public class SyncPanel extends javax.swing.JPanel {
     LogService logService = new LogService() {
 
         public void note(String text) {
-            
+
             if (messages.getText().equals("")) {
-                 messages.setText(text);
+                messages.setText(text);
             } else {
                 messages.setText(messages.getText() + "\n" + text);
             }
 
             if (messages.getText().length() > 10000) {
-                messages.setText(messages.getText().substring(messages.getText().length()-9999, messages.getText().length()));
+                messages.setText(messages.getText().substring(messages.getText().length() - 9999, messages.getText().length()));
             }
 
-            messages.setCaretPosition(messages.getText().length()-1);
+            messages.setCaretPosition(messages.getText().length() - 1);
         }
     };
     private volatile boolean syncing = false;
@@ -77,14 +77,14 @@ public class SyncPanel extends javax.swing.JPanel {
             public void thenDo(final DataService dataService) {
                 progressBar.setMaximum((model.getSize() * 2) + 1);
                 progressBar.setValue(1);
-                
+
                 final AtomicBoolean active = new AtomicBoolean(true);
-                 
+
                 final CallbackLatch latch = new CallbackLatch(model.getSize()) {
 
                     @Override
                     public void onCompleted() {
-                        logService.note("  Winding down data service. "+new Date());
+                        logService.note("  Winding down data service. " + new Date());
                         dataService.shutdown(new WhenShutdown() {
 
                             @Override
@@ -109,8 +109,8 @@ public class SyncPanel extends javax.swing.JPanel {
                     }
                 };
 
-              
-                
+
+
                 Thread syncThread = new Thread(new Runnable() {
 
                     public void run() {
@@ -142,29 +142,29 @@ public class SyncPanel extends javax.swing.JPanel {
                         }
                     }
                 });
-                
+
                 Thread monitorSyncThread = new Thread(new Runnable() {
 
                     public void run() {
                         try {
                             Thread.sleep(240 * 1000); // wait for 4 minutes
-                            
+
                             if (active.get()) {
-                                logService.note("Error: Synchronization timeout "+new Date());
+                                logService.note("Error: Synchronization timeout " + new Date());
                                 progressBar.setValue(0);
                                 forceSyncButton.setEnabled(true);
                                 syncing = false;
                             }
-                            
+
                         } catch (InterruptedException ex) {
-                            logService.note("  Unexpected exception: "+ex);
+                            logService.note("  Unexpected exception: " + ex);
                         }
                     }
                 });
-                
+
                 syncThread.start();
                 monitorSyncThread.start();
-                
+
             }
 
             public void onFailure(Throwable t) {
@@ -511,22 +511,49 @@ public class SyncPanel extends javax.swing.JPanel {
 
     private void doCheckFiles() {
         logService.note("Checking registered files (" + new Date() + ")");
+
         final DefaultListModel model = (DefaultListModel) (directories.getModel());
+        {
+            final List<Integer> toClear = new LinkedList();
+            for (int i = 0; i <= model.getSize() - 1; i++) {
+                final String filePath = model.get(i).toString();
 
-        final List<Integer> toClear = new LinkedList();
-        for (int i = 0; i <= model.getSize() - 1; i++) {
-            final String filePath = model.get(i).toString();
+                if (!new File(filePath).exists()) {
+                    toClear.add(i);
+                }
+            }
+            Collections.reverse(toClear);
+            for (Integer idxToDelete : toClear) {
+                logService.note("  Removed non existing file: " + model.get(idxToDelete).toString());
+                model.remove(idxToDelete);
 
-            if (!new File(filePath).exists()) {
-                toClear.add(i);
             }
         }
-        Collections.reverse(toClear);
-        for (Integer idxToDelete : toClear) {
-            logService.note("  Removed non existing file: " + model.get(idxToDelete).toString());
-            model.remove(idxToDelete);
 
+        logService.note("Checking for duplicate files.");
+
+        {
+            final Set<String> visited = new HashSet<String>(model.getSize());
+            final List<Integer> toClear = new LinkedList();
+            for (int i = 0; i <= model.getSize() - 1; i++) {
+                final String filePath = model.get(i).toString();
+                
+                if (visited.contains(filePath)) {
+                    toClear.add(i);
+                }
+                
+                visited.add(filePath);
+                
+                
+            }
+            Collections.reverse(toClear);
+            for (Integer idxToDelete : toClear) {
+                logService.note("  Removed duplicate file: " + model.get(idxToDelete).toString());
+                model.remove(idxToDelete);
+
+            }
         }
+
         directories.revalidate();
         saveSelectedDirsToPrefs();
     }
