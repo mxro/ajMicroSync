@@ -1,4 +1,4 @@
-ajMicroSync
+textsync: Text Content Management System
 ==========
 
 
